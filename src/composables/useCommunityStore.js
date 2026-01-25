@@ -1,64 +1,127 @@
 import { ref, computed } from 'vue'
+import api from '../utils/api'
 
-// Global state (singleton pattern for simple mock store)
+// Global state
 const serverGroups = ref([])
 
 export const useCommunityStore = () => {
-    
-    // Core Actions
-    const addServerGroup = (name) => {
-        const newGroup = {
-            id: Date.now().toString(),
-            name,
-            servers: []
+
+    // Fetch
+    const fetchServerGroups = async () => {
+        try {
+            const res = await api.get('/server-groups')
+            // Backend returns [{id, name, servers: [...]}] based on our handler
+            serverGroups.value = res.data.map(g => ({
+                ...g,
+                servers: g.servers.map(s => ({
+                    ...s,
+                    status: 'unknown' // Default status until checked?
+                }))
+            }))
+
+            // Check status for all servers asynchronously
+            checkAllStatuses()
+
+        } catch (e) {
+            console.error(e)
         }
-        serverGroups.value.push(newGroup)
-        return newGroup
     }
 
-    const removeServerGroup = (groupId) => {
-        const index = serverGroups.value.findIndex(g => g.id === groupId)
-        if (index !== -1) {
-            serverGroups.value.splice(index, 1)
+    // Helper to check status for all loaded servers
+    const checkAllStatuses = async () => {
+        for (const group of serverGroups.value) {
+            for (const server of group.servers) {
+                // Don't await in loop to do parallel? 
+                // Better to map promises.
+                // But for simplicity in ref loop:
+                checkOneServerStatus(group.id, server)
+            }
         }
     }
 
-    const addServer = (groupId, serverData) => {
+    const checkOneServerStatus = async (groupId, server) => {
+        try {
+            await api.post('/servers/check', {
+                ip: server.ip,
+                port: server.port,
+                rcon_password: server.rcon_password
+            })
+            // Update status to online
+            updateLocalStatus(groupId, server.id, 'online')
+        } catch (e) {
+            updateLocalStatus(groupId, server.id, 'offline')
+        }
+    }
+
+    const updateLocalStatus = (groupId, serverId, status) => {
         const group = serverGroups.value.find(g => g.id === groupId)
-        if (!group) return false
-
-        const newServer = {
-            id: Date.now().toString(), // Simple ID generation
-            ...serverData,
-            status: 'online' // Mock status
+        if (group) {
+            const s = group.servers.find(s => s.id === serverId)
+            if (s) s.status = status
         }
-        
-        group.servers.push(newServer)
-        return newServer
     }
 
-    const updateServer = (groupId, serverId, serverData) => {
-        const group = serverGroups.value.find(g => g.id === groupId)
-        if (!group) return false
-        
-        const serverIndex = group.servers.findIndex(s => s.id === serverId)
-        if (serverIndex !== -1) {
-            group.servers[serverIndex] = { ...group.servers[serverIndex], ...serverData }
-            return true
+    // Server Groups
+    const addServerGroup = async (name) => {
+        try {
+            await api.post('/server-groups', { name })
+            await fetchServerGroups()
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '创建失败' }
         }
-        return false
     }
 
-    const removeServer = (groupId, serverId) => {
-        const group = serverGroups.value.find(g => g.id === groupId)
-        if (!group) return false
-        
-        const index = group.servers.findIndex(s => s.id === serverId)
-        if (index !== -1) {
-            group.servers.splice(index, 1)
-            return true
+    const removeServerGroup = async (groupId) => {
+        try {
+            await api.delete(`/server-groups/${groupId}`)
+            await fetchServerGroups()
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: '删除失败' }
         }
-        return false
+    }
+
+    // Servers
+    const addServer = async (groupId, serverData) => {
+        try {
+            await api.post('/servers', { group_id: groupId, ...serverData })
+            await fetchServerGroups()
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '添加失败' }
+        }
+    }
+
+    const updateServer = async (groupId, serverId, serverData) => {
+        try {
+            await api.put(`/servers/${serverId}`, serverData)
+            await fetchServerGroups()
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '更新失败' }
+        }
+    }
+
+    const removeServer = async (groupId, serverId) => {
+        try {
+            await api.delete(`/servers/${serverId}`)
+            await fetchServerGroups()
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: '删除失败' }
+        }
+    }
+
+    // Check Server Status (RCON)
+    const checkServer = async (connectionInfo) => {
+        try {
+            // connectionInfo: { ip, port, rcon_password }
+            await api.post('/servers/check', connectionInfo)
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '连接失败' }
+        }
     }
 
     // Getters / Computed
@@ -67,10 +130,12 @@ export const useCommunityStore = () => {
     return {
         serverGroups,
         hasCommunity,
+        fetchServerGroups,
         addServerGroup,
         removeServerGroup,
         addServer,
         updateServer,
-        removeServer
+        removeServer,
+        checkServer
     }
 }

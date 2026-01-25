@@ -20,7 +20,13 @@ const form = ref({
   name: '',
   ip: '',
   port: '',
-  rconPassword: ''
+  rcon_password: ''
+})
+
+const checkStatus = ref({
+  loading: false,
+  success: false,
+  message: ''
 })
 
 const errors = ref({})
@@ -30,10 +36,16 @@ watch(() => props.modelValue, (val) => {
   if (val) {
     errors.value = {}
     if (props.initialData) {
-      form.value = { ...props.initialData }
+      form.value = { 
+          ...props.initialData,
+          rcon_password: props.initialData.rcon_password || '' 
+      }
     } else {
-      form.value = { name: '', ip: '', port: '27015', rconPassword: '' }
+      form.value = { name: '', ip: '', port: '27015', rcon_password: '' }
     }
+  } else {
+    // Reset check status on close
+    checkStatus.value = { loading: false, success: false, message: '' }
   }
 })
 
@@ -51,17 +63,51 @@ const closeModal = () => {
   emit('update:modelValue', false)
 }
 
-const handleSave = () => {
+const handleSave = async () => {
   if (!validate()) return
 
+  // Prepare Payload
+  const payload = {
+      ...form.value,
+      port: parseInt(form.value.port) // Ensure Int
+  }
+
+  let res;
   if (isEditMode.value) {
-    updateServer(props.groupId, props.initialData.id, form.value)
+    res = await updateServer(props.groupId, props.initialData.id, payload)
   } else {
     // Basic Add
-    addServer(props.groupId, form.value)
+    res = await addServer(props.groupId, payload)
   }
   
-  emit('save')
+  if (res.success) {
+      emit('save')
+      closeModal()
+  } else {
+      alert(res.message || '操作失败')
+  }
+}
+
+const handleCheck = async () => {
+    checkStatus.value = { loading: true, success: false, message: '' }
+    
+    // Validate minimally
+    if (!form.value.ip || !form.value.port) {
+        checkStatus.value = { loading: false, success: false, message: '请先填写 IP 和 端口' }
+        return
+    }
+
+    const res = await store.checkServer({
+        ip: form.value.ip,
+        port: parseInt(form.value.port),
+        rcon_password: form.value.rcon_password
+    })
+
+    checkStatus.value = {
+        loading: false,
+        success: res.success,
+        message: res.success ? '连接成功！服务器在线。' : (res.message || '连接失败')
+    }
 }
 </script>
 
@@ -119,13 +165,29 @@ const handleSave = () => {
         <!-- RCON -->
         <div>
           <label class="block text-sm font-medium text-slate-400 mb-1">RCON 密码</label>
-           <input 
-              v-model="form.rconPassword"
-              type="password" 
-              placeholder="建议定期更换密码"
-              class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+           <div class="flex gap-2">
+             <input 
+                v-model="form.rcon_password"
+                type="password" 
+                placeholder="建议定期更换密码"
+                class="flex-1 px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <button 
+                @click="handleCheck"
+                :disabled="checkStatus.loading"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {{ checkStatus.loading ? '连接中...' : '测试连接' }}
+              </button>
+           </div>
             <p class="text-slate-500 text-xs mt-1">仅用于服务器通讯，不会公开显示。</p>
+            
+            <!-- Check Result -->
+            <div v-if="checkStatus.message" class="mt-2 text-sm flex items-center gap-2" :class="checkStatus.success ? 'text-green-400' : 'text-red-400'">
+                <span v-if="checkStatus.success">●</span>
+                <span v-else>✕</span>
+                {{ checkStatus.message }}
+            </div>
         </div>
       </div>
 

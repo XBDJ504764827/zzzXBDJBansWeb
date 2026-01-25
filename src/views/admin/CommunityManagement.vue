@@ -4,8 +4,14 @@ import { useCommunityStore } from '@/composables/useCommunityStore'
 import ServerGroupModal from '@/components/ServerGroupModal.vue'
 import ServerEditModal from '@/components/ServerEditModal.vue'
 
+import { onMounted } from 'vue'
+
 const store = useCommunityStore()
-const { serverGroups, hasCommunity, removeServerGroup, removeServer } = store
+const { serverGroups, hasCommunity, removeServerGroup, removeServer, fetchServerGroups } = store
+
+onMounted(() => {
+    fetchServerGroups()
+})
 
 const showGroupModal = ref(false)
 const showServerModal = ref(false)
