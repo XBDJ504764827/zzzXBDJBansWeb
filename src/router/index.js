@@ -27,7 +27,7 @@ const router = createRouter({
                 {
                     path: 'bans',
                     name: 'bans',
-                    component: { template: '<div class="text-white p-4">Ban Management (Coming Soon)</div>' }
+                    component: () => import('../views/admin/BanList.vue')
                 },
                 {
                     path: 'mutes',
