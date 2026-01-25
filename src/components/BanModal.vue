@@ -47,17 +47,8 @@ const durationOptions = [
 watch(() => props.show, (newVal) => {
   if (newVal) {
     errors.value = { steamId: '', ip: '' }
-    if (props.editMode && props.initialData) {
-      // Check if duration is a standard option, if not assume custom/logic needs adaptation
-      // For mock simplicity, just load it. 
-      // In real scenarios, we'd check if initialData.duration exists in options.
-      formData.value = { 
-        ...props.initialData,
-        customTime: '' 
-      }
-    } else {
-      // Reset form
-      formData.value = {
+    
+    const defaults = {
         name: '',
         banType: 'account',
         steamId: '',
@@ -65,7 +56,22 @@ watch(() => props.show, (newVal) => {
         reason: '',
         duration: '7d',
         customTime: ''
-      }
+    }
+
+    // If initialData is provided (whether edit mode or pre-fill), use it
+    if (props.initialData && Object.keys(props.initialData).length > 0) {
+        // Ensure we don't accidentally bring in unrelated fields, but spreads are usually fine
+        // We might want to preserve defaults for missing fields
+        formData.value = { ...defaults, ...props.initialData }
+        
+        // Special handling if initialData has duration that is not in options?
+        // Logic handled in previous version:
+        // "Check if duration is a standard option... assume custom" logic can remain or be simplified.
+        // For pre-fill from PlayerRecords, we send '7d' which is standard.
+        // If editing existing ban with custom date, we might need logic.
+        // Let's keep it simple: just copy.
+    } else {
+        formData.value = defaults
     }
   }
 })
