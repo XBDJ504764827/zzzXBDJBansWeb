@@ -33,6 +33,11 @@ const router = createRouter({
                     path: 'mutes',
                     name: 'mutes',
                     component: { template: '<div class="text-white p-4">Mute Management (Coming Soon)</div>' }
+                },
+                {
+                    path: 'admins',
+                    name: 'admins',
+                    component: () => import('../views/admin/AdminList.vue')
                 }
             ]
         }

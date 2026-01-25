@@ -1,39 +1,40 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../composables/useAuthStore'
 
 const router = useRouter()
-
-const username = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-
-// Mock state for "First Run" system check
-const isSystemInitialized = ref(true) // Set to false to see Admin Setup UI (mock)
-
-const handleLogin = async () => {
-  error.value = ''
+  const { login } = useAuthStore()
   
-  if (!username.value || !password.value) {
-    error.value = '请输入用户名和密码'
-    return
-  }
-
-  loading.value = true
+  const username = ref('')
+  const password = ref('')
+  const loading = ref(false)
+  const error = ref('')
   
-  // Simulate API call
-  setTimeout(() => {
-    loading.value = false
-    if (username.value === 'admin' && password.value === 'password') {
-       // Success
-       console.log('Login successful')
-       // TODO: Store token, redirect
-    } else {
-       error.value = '用户名或密码错误'
+  const handleLogin = async () => {
+    error.value = ''
+    
+    if (!username.value || !password.value) {
+      error.value = '请输入用户名和密码'
+      return
     }
-  }, 1000)
-}
+  
+    loading.value = true
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    const result = login(username.value, password.value)
+    
+    loading.value = false
+    
+    if (result.success) {
+         console.log('Login successful', result.user)
+         router.push('/admin')
+    } else {
+         error.value = result.message
+    }
+  }
 </script>
 
 <template>

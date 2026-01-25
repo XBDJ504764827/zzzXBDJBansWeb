@@ -57,6 +57,17 @@ const getStatusText = (status) => {
         default: return status
     }
 }
+const getBanTypeLabel = (type) => {
+    const map = {
+        'account': '账号封禁',
+        'ip': 'IP封禁',
+        'default': '默认',
+        'vac': 'VAC',
+        'game': 'Game Ban',
+        'community': 'Community'
+    }
+    return map[type] || type
+}
 </script>
 
 <template>
@@ -110,7 +121,7 @@ const getStatusText = (status) => {
                             <div class="font-medium text-white">{{ ban.name }}</div>
                             <div class="text-xs text-gray-500 font-mono mt-0.5">{{ ban.steamId }}</div>
                         </td>
-                        <td class="px-6 py-4 text-gray-300">{{ ban.banType }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ getBanTypeLabel(ban.banType) }}</td>
                         <td class="px-6 py-4 text-gray-400 font-mono">{{ ban.ip }}</td>
                         <td class="px-6 py-4 text-gray-300 max-w-xs truncate" :title="ban.reason">{{ ban.reason }}</td>
                         <td class="px-6 py-4 text-gray-300">{{ ban.duration }}</td>

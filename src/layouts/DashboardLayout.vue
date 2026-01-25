@@ -1,16 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '../composables/useAuthStore'
 
 const router = useRouter()
 const route = useRoute()
+const { currentUser, isSystemAdmin } = useAuthStore()
 
 const sidebarOpen = ref(true)
 
 const navigation = [
   { name: '社区组管理', href: '/admin/community', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
   { name: '封禁管理', href: '/admin/bans', icon: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' },
-  { name: '禁言管理', href: '/admin/mutes', icon: 'M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z' }, // Simplified icon
+  { name: '禁言管理', href: '/admin/mutes', icon: 'M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z' }, 
+  { name: '管理员管理', href: '/admin/admins', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
 ]
 
 const currentRoute = computed(() => route.path)
@@ -58,14 +61,18 @@ const currentRoute = computed(() => route.path)
 
       <!-- User Info Footer -->
       <div class="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-slate-900/50">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
-            AD
+        <div class="flex items-center gap-3" v-if="currentUser">
+          <div class="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+               :class="isSystemAdmin ? 'bg-purple-600' : 'bg-blue-600'">
+            {{ currentUser.username.substring(0, 2).toUpperCase() }}
           </div>
           <div>
-            <p class="text-sm font-medium text-white">Admin</p>
-            <p class="text-xs text-slate-500">Super Administrator</p>
+            <p class="text-sm font-medium text-white">{{ currentUser.username }}</p>
+            <p class="text-xs text-slate-500">{{ isSystemAdmin ? 'System Admin' : 'Admin' }}</p>
           </div>
+        </div>
+        <div class="flex items-center gap-3" v-else>
+             <p class="text-xs text-slate-500">Not Logged In</p>
         </div>
       </div>
     </aside>
