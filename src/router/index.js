@@ -13,6 +13,7 @@ const router = createRouter({
         {
             path: '/admin',
             component: DashboardLayout,
+            meta: { requiresAuth: true },
             children: [
                 {
                     path: '',
@@ -21,7 +22,6 @@ const router = createRouter({
                 {
                     path: 'community',
                     name: 'community',
-                    // Lazy load the view
                     component: () => import('../views/admin/CommunityManagement.vue')
                 },
                 {
@@ -42,11 +42,31 @@ const router = createRouter({
                 {
                     path: 'player-records',
                     name: 'player-records',
-                    component: () => import('../views/admin/PlayerRecords.vue')
                 }
             ]
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/'
         }
     ],
+})
+
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token')
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+    // 1. Protected Route Check
+    if (requiresAuth && !token) {
+        next('/')
+    }
+    // 2. Login Page Check (Redirect if already logged in)
+    else if (to.path === '/' && token) {
+        next('/admin')
+    }
+    else {
+        next()
+    }
 })
 
 export default router

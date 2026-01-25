@@ -1,11 +1,15 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBanStore } from '../../composables/useBanStore'
 import { useAuthStore } from '../../composables/useAuthStore'
 import BanModal from '../../components/BanModal.vue'
 
-const { bans, addBan, removeBan, updateBan } = useBanStore()
+const { bans, addBan, removeBan, updateBan, fetchBans } = useBanStore()
 const { currentUser } = useAuthStore()
+
+onMounted(() => {
+    fetchBans()
+})
 
 const showModal = ref(false)
 const editMode = ref(false)
@@ -22,6 +26,19 @@ const openAddModal = () => {
 const openEditModal = (ban) => {
     editMode.value = true
     currentBan.value = { ...ban }
+    showModal.value = true
+}
+
+const openRebanModal = (ban) => {
+    editMode.value = false // Treat as new ban
+    currentBan.value = {
+        name: ban.name,
+        steamId: ban.steamId,
+        ip: ban.ip,
+        banType: ban.banType,
+        reason: ban.reason,
+        duration: '7d' // Default to 7d or keep old? User said "adjust time", implying new start.
+    }
     showModal.value = true
 }
 
@@ -115,9 +132,9 @@ const getBanTypeLabel = (type) => {
                     <tr class="border-b border-white/5 bg-white/5">
                         <th class="px-6 py-4 font-medium text-gray-300">玩家</th>
                         <th class="px-6 py-4 font-medium text-gray-300">封禁属性</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">IP 地址</th>
+                        <th class="px-6 py-4 font-medium text-gray-300">封禁时间</th>
+                        <th class="px-6 py-4 font-medium text-gray-300">时长 / 解封时间</th>
                         <th class="px-6 py-4 font-medium text-gray-300">原因</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">时长</th>
                         <th class="px-6 py-4 font-medium text-gray-300">执行管理</th>
                         <th class="px-6 py-4 font-medium text-gray-300">状态</th>
                         <th class="px-6 py-4 font-medium text-gray-300 text-right">操作</th>
@@ -128,11 +145,19 @@ const getBanTypeLabel = (type) => {
                         <td class="px-6 py-4">
                             <div class="font-medium text-white">{{ ban.name }}</div>
                             <div class="text-xs text-gray-500 font-mono mt-0.5">{{ ban.steamId }}</div>
+                            <div class="text-xs text-gray-600 font-mono" v-if="ban.ip">{{ ban.ip }}</div>
                         </td>
                         <td class="px-6 py-4 text-gray-300">{{ getBanTypeLabel(ban.banType) }}</td>
-                        <td class="px-6 py-4 text-gray-400 font-mono">{{ ban.ip }}</td>
+                        <td class="px-6 py-4 text-gray-400 font-mono text-xs">
+                             {{ ban.createTime ? new Date(ban.createTime).toLocaleString() : '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                             <div class="text-gray-300 text-sm">{{ ban.duration }}</div>
+                             <div class="text-xs text-blue-400 font-mono mt-0.5">
+                                 {{ ban.expiresAt ? new Date(ban.expiresAt).toLocaleString() : (ban.duration === 'permanent' ? '永久' : '-') }}
+                             </div>
+                        </td>
                         <td class="px-6 py-4 text-gray-300 max-w-xs truncate" :title="ban.reason">{{ ban.reason }}</td>
-                        <td class="px-6 py-4 text-gray-300">{{ ban.duration }}</td>
                         <td class="px-6 py-4 text-blue-400 font-medium">{{ ban.adminName || '-' }}</td>
                         <td class="px-6 py-4">
                             <span :class="['inline-flex items-center px-2 py-1 rounded text-xs font-medium', getStatusColor(ban.status)]">
@@ -140,8 +165,10 @@ const getBanTypeLabel = (type) => {
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                             <div class="flex items-center justify-end gap-2">
+                            <div class="flex items-center justify-end gap-2">
+                                <!-- Edit: Only for Active -->
                                 <button 
+                                    v-if="ban.status === 'active'"
                                     @click="openEditModal(ban)"
                                     class="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                                     title="编辑"
@@ -150,6 +177,20 @@ const getBanTypeLabel = (type) => {
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </button>
+
+                                <!-- Re-ban: Only for Expired/Unbanned -->
+                                <button 
+                                    v-if="ban.status === 'expired' || ban.status === 'unbanned'"
+                                    @click="openRebanModal(ban)"
+                                    class="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+                                    title="重新封禁"
+                                >
+                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                     </svg>
+                                </button>
+
+                                <!-- Delete (soft delete/lift ban): Only for Active -->
                                 <button 
                                     v-if="ban.status === 'active'"
                                     @click="handleDelete(ban.id)"

@@ -5,9 +5,13 @@ import { useBanStore } from '../../composables/useBanStore'
 import { useAuthStore } from '../../composables/useAuthStore'
 import BanModal from '../../components/BanModal.vue'
 
-const { records } = usePlayerRecordStore()
+const { records, fetchRecords } = usePlayerRecordStore()
 const { addBan } = useBanStore()
 const { currentUser } = useAuthStore()
+
+onMounted(() => {
+    fetchRecords()
+})
 
 const searchQuery = ref('')
 const contextMenu = ref({

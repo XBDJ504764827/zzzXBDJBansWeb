@@ -24,7 +24,7 @@ const router = useRouter()
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    const result = login(username.value, password.value)
+    const result = await login(username.value, password.value)
     
     loading.value = false
     

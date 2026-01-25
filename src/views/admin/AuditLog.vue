@@ -1,8 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useLogStore } from '../../composables/useLogStore'
 
-const { logs } = useLogStore()
+const { logs, fetchLogs } = useLogStore()
+
+onMounted(() => {
+    fetchLogs()
+})
 
 const hasLogs = computed(() => logs.value.length > 0)
 

@@ -5,7 +5,12 @@ import { useAuthStore } from '../composables/useAuthStore'
 
 const router = useRouter()
 const route = useRoute()
-const { currentUser, isSystemAdmin } = useAuthStore()
+const { currentUser, isSystemAdmin, logout } = useAuthStore()
+
+const handleLogout = async () => {
+  await logout()
+  router.push('/')
+}
 
 const sidebarOpen = ref(true)
 
@@ -62,15 +67,26 @@ const currentRoute = computed(() => route.path)
 
       <!-- User Info Footer -->
       <div class="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-slate-900/50">
-        <div class="flex items-center gap-3" v-if="currentUser">
-          <div class="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-               :class="isSystemAdmin ? 'bg-purple-600' : 'bg-blue-600'">
-            {{ currentUser.username.substring(0, 2).toUpperCase() }}
+        <div class="flex items-center justify-between gap-3" v-if="currentUser">
+          <div class="flex items-center gap-3 overflow-hidden">
+             <div class="h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white"
+                  :class="isSystemAdmin ? 'bg-purple-600' : 'bg-blue-600'">
+               {{ currentUser.username.substring(0, 2).toUpperCase() }}
+             </div>
+             <div class="min-w-0">
+               <p class="text-sm font-medium text-white truncate">{{ currentUser.username }}</p>
+               <p class="text-xs text-slate-500 truncate">{{ isSystemAdmin ? 'System Admin' : 'Admin' }}</p>
+             </div>
           </div>
-          <div>
-            <p class="text-sm font-medium text-white">{{ currentUser.username }}</p>
-            <p class="text-xs text-slate-500">{{ isSystemAdmin ? 'System Admin' : 'Admin' }}</p>
-          </div>
+          <button 
+            @click="handleLogout"
+            class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+            title="退出登录"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+            </svg>
+          </button>
         </div>
         <div class="flex items-center gap-3" v-else>
              <p class="text-xs text-slate-500">Not Logged In</p>

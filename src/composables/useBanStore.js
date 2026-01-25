@@ -1,76 +1,103 @@
 import { ref } from 'vue'
-import { useLogStore } from './useLogStore'
+import api from '../utils/api'
 
-// Mock Data
+// State
 const bans = ref([])
 
 export const useBanStore = () => {
 
-    const { addLog } = useLogStore()
+    const mapBanFromBackend = (b) => ({
+        id: b.id,
+        name: b.name,
+        steamId: b.steam_id,
+        ip: b.ip,
+        banType: b.ban_type, // "account" or "ip"
+        reason: b.reason,
+        duration: b.duration,
+        status: b.status,
+        adminName: b.admin_name,
+        createTime: b.created_at,
+        expiresAt: b.expires_at
+    })
 
-    const addBan = (banData) => {
-        const newBan = {
-            id: Date.now().toString(),
-            createTime: new Date().toISOString(),
-            status: 'active', // active, expired, unbanned
-            ...banData
+    const fetchBans = async () => {
+        try {
+            const res = await api.get('/bans')
+            bans.value = res.data.map(mapBanFromBackend)
+        } catch (e) {
+            console.error(e)
         }
-        bans.value.push(newBan)
-        addLog({
-            admin: banData.adminName,
-            action: '新增封禁',
-            target: banData.name,
-            details: `SteamID: ${banData.steamId}, 原因: ${banData.reason}`
-        })
-        return newBan
     }
 
-    const removeBan = (id) => {
-        const index = bans.value.findIndex(b => b.id === id)
-        if (index !== -1) {
-            const ban = bans.value[index]
-            bans.value[index].status = 'unbanned'
-            // We need to know WHO unbanned. 
-            // Currently removeBan only implies id. 
-            // In a real app the controller knows headers.
-            // For mock, we'll log as 'Unknown (System)' or change signature later.
-            // Let's rely on frontend calling code to maybe inject current user? 
-            // Or just leave "Unknown" for now as signature change is larger refactor.
-            // Wait, I can import useAuthStore here if I want implicit current user logging
-            // But let's keep it simple. If we want better logging, we should pass admin name.
-            // But previous requirement didn't ask to change unban signature.
-            // I'll assume current active user if useAuthStore works here. 
-            // Let's try importing useAuthStore dynamically to avoid circular dep issues inside functions if needed,
-            // or just import at top. Circular dep is risky. 
-            // I will use 'System/Admin' for now to be safe or just log the action.
-            addLog({
-                admin: 'System/Admin',
-                action: '解除封禁',
-                target: ban.name,
-                details: `ID: ${id}`
-            })
+    const addBan = async (banData) => {
+        try {
+            // Frontend banData matches backend EXPECTED payload?
+            // Backend `CreateBanRequest`:
+            // name, steam_id, ip, ban_type, reason, duration, admin_name
+            // Frontend sends camelCase. We need to convert.
+            const payload = {
+                name: banData.name,
+                steam_id: banData.steamId,
+                ip: banData.ip,
+                ban_type: banData.banType,
+                reason: banData.reason,
+                duration: banData.duration,
+                admin_name: banData.adminName
+            }
+            await api.post('/bans', payload)
+            await fetchBans()
+            return { success: true }
+        } catch (e) {
+            console.error(e)
+            return { success: false, message: e.response?.data || 'Failed' }
+        }
+    }
+
+    const removeBan = async (id) => {
+        // "Unban" -> Update status to 'unbanned'
+        try {
+            // Backend `UpdateBanRequest` accepts `status`.
+            // Our previous Logic was `removeBan` implies unbanning.
+            // Backend has `delete` handler too, but that's HARD delete.
+            // "解除封禁" usually means setting status to unbanned.
+            // Let's use PUT update status.
+            await api.put(`/bans/${id}`, { status: 'unbanned' })
+            await fetchBans()
             return true
+        } catch (e) {
+            console.error(e)
+            return false
         }
-        return false
     }
 
-    const updateBan = (id, updatedData) => {
-        const index = bans.value.findIndex(b => b.id === id)
-        if (index !== -1) {
-            bans.value[index] = { ...bans.value[index], ...updatedData }
-            addLog({
-                admin: 'System/Admin',
-                action: '编辑封禁',
-                target: bans.value[index].name,
-                details: `Updated fields: ${Object.keys(updatedData).join(', ')}`
-            })
+    const updateBan = async (id, updatedData) => {
+        try {
+            // Map frontend fields to backend fields if necessary
+            // updatedData might contain reason, duration, etc.
+            const payload = {}
+            if (updatedData.status) payload.status = updatedData.status
+            if (updatedData.name) payload.name = updatedData.name
+            if (updatedData.steamId) payload.steam_id = updatedData.steamId
+            if (updatedData.ip) payload.ip = updatedData.ip
+            if (updatedData.banType) payload.ban_type = updatedData.banType
+            if (updatedData.reason) payload.reason = updatedData.reason
+            if (updatedData.duration) payload.duration = updatedData.duration
+
+            await api.put(`/bans/${id}`, payload)
+            await fetchBans()
             return true
+        } catch (e) {
+            console.error(e)
+            return false
         }
-        return false
     }
+
+    // Hard delete? Backend supports DELETE /api/bans/:id
+    // If needed. But frontend calls removeBan which in UI usually means "Lift Ban".
 
     return {
         bans,
+        fetchBans,
         addBan,
         removeBan,
         updateBan

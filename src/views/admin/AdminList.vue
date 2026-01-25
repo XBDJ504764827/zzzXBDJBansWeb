@@ -1,9 +1,13 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../composables/useAuthStore'
 import AdminModal from '../../components/AdminModal.vue'
 
-const { adminList, isSystemAdmin, addAdmin, updateAdmin, deleteAdmin, currentUser } = useAuthStore()
+const { adminList, isSystemAdmin, addAdmin, updateAdmin, deleteAdmin, currentUser, fetchAdmins } = useAuthStore()
+
+onMounted(() => {
+    fetchAdmins()
+})
 
 const showModal = ref(false)
 const editMode = ref(false)

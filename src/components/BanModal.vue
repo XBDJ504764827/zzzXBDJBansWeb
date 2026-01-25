@@ -43,44 +43,121 @@ const durationOptions = [
   { value: 'custom', label: '自定义时间' }
 ]
 
+const durationSelect = ref('7d')
+const customDate = ref('')
+const customHour = ref('00')
+const customMinute = ref('00')
+const showHourSelect = ref(false)
+const showMinuteSelect = ref(false)
+
+const customTime = computed(() => {
+    if (!customDate.value) return ''
+    return `${customDate.value}T${customHour.value}:${customMinute.value}`
+})
+
+const minDate = computed(() => {
+    const now = new Date()
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+    return now.toISOString().slice(0, 16)
+})
+
+const calculatedDurationPreview = computed(() => {
+    if (!customTime.value) return ''
+    const end = new Date(customTime.value)
+    const now = new Date()
+    const diffSeconds = Math.floor((end - now) / 1000)
+    
+    if (diffSeconds <= 0) return '无效时间 (需在未来)'
+
+    // Simple formatting
+    const d = Math.floor(diffSeconds / (24 * 3600))
+    const h = Math.floor((diffSeconds % (24 * 3600)) / 3600)
+    const m = Math.floor((diffSeconds % 3600) / 60)
+    
+    let parts = []
+    if (d > 0) parts.push(`${d}天`)
+    if (h > 0) parts.push(`${h}小时`)
+    if (m > 0) parts.push(`${m}分`)
+    if (parts.length === 0) parts.push(`${diffSeconds}秒`)
+    
+    return parts.join(' ')
+})
+
 // Initialize form when modal opens or initialData changes
 watch(() => props.show, (newVal) => {
   if (newVal) {
     errors.value = { steamId: '', ip: '' }
     
-    const defaults = {
+    // Default values
+    formData.value = {
         name: '',
         banType: 'account',
         steamId: '',
         ip: '',
         reason: '',
-        duration: '7d',
-        customTime: ''
+        duration: '7d'
     }
+    durationSelect.value = '7d'
+    customDate.value = ''
+    customHour.value = '00'
+    customMinute.value = '00'
 
-    // If initialData is provided (whether edit mode or pre-fill), use it
+    // If initialData is provided
     if (props.initialData && Object.keys(props.initialData).length > 0) {
-        // Ensure we don't accidentally bring in unrelated fields, but spreads are usually fine
-        // We might want to preserve defaults for missing fields
-        formData.value = { ...defaults, ...props.initialData }
+        formData.value = { ...formData.value, ...props.initialData }
         
-        // Special handling if initialData has duration that is not in options?
-        // Logic handled in previous version:
-        // "Check if duration is a standard option... assume custom" logic can remain or be simplified.
-        // For pre-fill from PlayerRecords, we send '7d' which is standard.
-        // If editing existing ban with custom date, we might need logic.
-        // Let's keep it simple: just copy.
-    } else {
-        formData.value = defaults
+        // Handle duration display
+        const dur = props.initialData.duration
+        const isStandard = durationOptions.some(opt => opt.value === dur)
+        if (isStandard) {
+             durationSelect.value = dur
+        } else {
+             // If not standard (e.g. "12345s"), set to custom if we can? 
+             // Or if editing an active ban, we might want to show it.
+             // For now, if editing valid "12345s", we might just show custom placeholder or try to parse?
+             // Simplest: Default to 7d or if it looks like seconds, show custom?
+             // Let's just default to '7d' if not standard string match for simplicity unless simple logic.
+             // But wait, if re-banning, we definitely want clean slate for time.
+             // If editing active ban, we keep current. 
+             durationSelect.value = '7d' 
+        }
     }
   }
 })
 
+const handleDurationChange = () => {
+    if (durationSelect.value === 'custom') {
+        customHour.value = '00'
+        customMinute.value = '00'
+    }
+}
+
+const toggleHourSelect = () => {
+    showHourSelect.value = !showHourSelect.value
+    showMinuteSelect.value = false
+}
+
+const toggleMinuteSelect = () => {
+    showMinuteSelect.value = !showMinuteSelect.value
+    showHourSelect.value = false
+}
+
+const selectHour = (h) => {
+    customHour.value = String(h).padStart(2, '0')
+    showHourSelect.value = false
+}
+
+const selectMinute = (m) => {
+    customMinute.value = String(m).padStart(2, '0')
+    showMinuteSelect.value = false
+}
+
+const closeSelects = () => {
+    showHourSelect.value = false
+    showMinuteSelect.value = false
+}
+
 const validateSteamId = (id) => {
-  // Common SteamID formats:
-  // STEAM_0:0:12345678
-  // [U:1:12345678]
-  // 76561198000000000 (64-bit)
   const steamRegex = /^(STEAM_[0-5]:[01]:\d+|\[U:1:\d+\]|7656119\d{10})$/
   return steamRegex.test(id)
 }
@@ -100,24 +177,24 @@ const submitForm = () => {
         isValid = false
     }
 
-    if (formData.value.banType === 'ip' && !formData.value.ip) {
-        // If IP ban is selected, IP might be mandatory? 
-        // User didn't specify strict IP validation but it implies we need it.
-        // Let's just warn if empty for now if strictly required.
-        // Assuming not strict for now unless requested.
-    }
-
-    if (formData.value.duration === 'custom' && !formData.value.customTime) {
+    if (durationSelect.value === 'custom' && !customTime.value) {
         alert('请选择自定义解封时间')
         isValid = false
     }
 
     if (!isValid) return
 
-    // Process duration for submission
-    let finalDuration = formData.value.duration
-    if (formData.value.duration === 'custom') {
-        finalDuration = `Until ${formData.value.customTime.replace('T', ' ')}`
+    // Calculate duration
+    let finalDuration = durationSelect.value
+    if (durationSelect.value === 'custom') {
+        const end = new Date(customTime.value)
+        const now = new Date()
+        const diffSeconds = Math.floor((end - now) / 1000)
+        
+        if (diffSeconds <= 0) {
+            return alert('解封时间必须在未来')
+        }
+        finalDuration = `${diffSeconds}s`
     }
 
     emit('submit', { 
@@ -197,8 +274,9 @@ const submitForm = () => {
            <label class="block text-xs font-medium text-gray-400 mb-1">封禁时长</label>
            <div class="flex gap-2">
                <select 
-                 v-model="formData.duration"
+                 v-model="durationSelect"
                  class="flex-1 bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                 @change="handleDurationChange"
                >
                  <option v-for="opt in durationOptions" :key="opt.value" :value="opt.value">
                    {{ opt.label }}
@@ -207,13 +285,89 @@ const submitForm = () => {
            </div>
            
            <!-- Custom Time Picker -->
-           <div v-if="formData.duration === 'custom'" class="mt-2 animate-fade-in">
-                <label class="block text-xs font-medium text-gray-400 mb-1">选择解封时间</label>
-                <input 
-                    v-model="formData.customTime"
-                    type="datetime-local"
-                    class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                >
+           <div v-if="durationSelect === 'custom'" class="mt-2 animate-fade-in p-3 bg-white/5 rounded-lg border border-white/5 space-y-3">
+                <!-- Ban Time (Read-only) -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">封禁时间 (当前)</label>
+                    <div class="w-full bg-[#14161b]/50 border border-white/5 rounded-lg px-3 py-2 text-gray-400 text-sm font-mono cursor-not-allowed">
+                        {{ new Date().toLocaleString() }}
+                    </div>
+                </div>
+
+                <!-- Unban Time (Selectable) -->
+                 <div class="space-y-2">
+                      <label class="block text-xs font-medium text-gray-400">解封时间 (日期 + 时间)</label>
+                      <div class="flex gap-2">
+                        <input 
+                            v-model="customDate"
+                            type="date"
+                            class="flex-1 bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                        >
+                        <!-- Custom Time Selectors -->
+                        <div class="flex items-center gap-2 relative">
+                            <!-- Backdrop for closing dropdowns -->
+                            <div v-if="showHourSelect || showMinuteSelect" class="fixed inset-0 z-10" @click="closeSelects"></div>
+
+                            <!-- Hour Selector -->
+                            <div class="relative w-20 z-20">
+                                <div 
+                                    @click="toggleHourSelect"
+                                    class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white cursor-pointer flex justify-between items-center hover:border-white/20 transition-colors"
+                                >
+                                    <span>{{ customHour }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': showHourSelect}" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div v-if="showHourSelect" class="absolute top-full left-0 w-full mt-1 bg-[#1e222b] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
+                                    <div 
+                                        v-for="h in 24" 
+                                        :key="h-1"
+                                        @click="selectHour(h-1)"
+                                        class="px-3 py-2 hover:bg-blue-600 cursor-pointer text-center text-sm"
+                                        :class="{'bg-blue-600/20 text-blue-400': customHour === String(h-1).padStart(2, '0')}"
+                                    >
+                                        {{ String(h-1).padStart(2, '0') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span class="text-gray-500 font-bold">:</span>
+
+                            <!-- Minute Selector -->
+                            <div class="relative w-20 z-20">
+                                <div 
+                                    @click="toggleMinuteSelect"
+                                    class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white cursor-pointer flex justify-between items-center hover:border-white/20 transition-colors"
+                                >
+                                    <span>{{ customMinute }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': showMinuteSelect}" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div v-if="showMinuteSelect" class="absolute top-full left-0 w-full mt-1 bg-[#1e222b] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
+                                    <div 
+                                        v-for="m in 60" 
+                                        :key="m-1"
+                                        @click="selectMinute(m-1)"
+                                        class="px-3 py-2 hover:bg-blue-600 cursor-pointer text-center text-sm"
+                                        :class="{'bg-blue-600/20 text-blue-400': customMinute === String(m-1).padStart(2, '0')}"
+                                    >
+                                        {{ String(m-1).padStart(2, '0') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                 </div>
+
+                <!-- Dynamic calculation preview -->
+                <div v-if="customTime" class="text-xs text-blue-400 flex items-center gap-1 pt-1 border-t border-white/5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>预计封禁时长: {{ calculatedDurationPreview }}</span>
+                </div>
            </div>
         </div>
 

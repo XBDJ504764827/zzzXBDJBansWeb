@@ -1,42 +1,55 @@
 import { ref } from 'vue'
+import api from '../utils/api'
 
-// Mock Data
-const logs = ref([
-    {
-        id: '1',
-        time: new Date(Date.now() - 86400000).toISOString(),
-        admin: 'admin',
-        action: '登录',
-        target: 'System',
-        details: '系统初始化登录'
-    }
-])
+// State
+const logs = ref([])
 
 export const useLogStore = () => {
 
-    // admin: Operator Name
-    // action: 'Create', 'Update', 'Delete', 'Ban', 'Unban', etc.
-    // target: Target Object Name (e.g. Player Name, Admin User)
-    // details: Extra info strings
-    const addLog = ({ admin, action, target, details }) => {
-        const newLog = {
-            id: Date.now().toString(),
-            time: new Date().toISOString(),
-            admin: admin || 'Unknown',
-            action,
-            target,
-            details
+    const mapLogFromBackend = (l) => ({
+        id: l.id,
+        time: l.created_at,
+        admin: l.admin_username,
+        action: l.action,
+        target: l.target,
+        details: l.details
+    })
+
+    const fetchLogs = async () => {
+        try {
+            const res = await api.get('/logs')
+            logs.value = res.data.map(mapLogFromBackend)
+        } catch (e) {
+            console.error(e)
         }
-        // Prepend to show newest first
-        logs.value.unshift(newLog)
+    }
+
+    const addLog = async ({ admin, action, target, details }) => {
+        try {
+            await api.post('/logs', {
+                admin_username: admin,
+                action,
+                target,
+                details
+            })
+            // Optionally fetch logs immediately if we are viewing the log page
+            // But usually this store is used by other components.
+            // If they are on Log page, Log page should poll or refresh.
+            // We can optimistic update but let's just trigger fetch if we want strict consistency.
+            // await fetchLogs() 
+        } catch (e) {
+            console.error("Failed to log", e)
+        }
     }
 
     const clearLogs = () => {
         logs.value = []
+        // Backend doesn't support clear all via API yet?
     }
 
     return {
         logs,
+        fetchLogs,
         addLog,
         clearLogs
     }
