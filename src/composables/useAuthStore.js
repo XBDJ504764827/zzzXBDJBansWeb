@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import { useLogStore } from './useLogStore'
 
 // Mock Data Persistence (in memory for this session)
 const adminList = ref([
@@ -26,6 +27,8 @@ export const useAuthStore = () => {
 
     // --- Admin Management Actions (Only available if current user is super_admin ideally, checked in UI/Logic) ---
 
+    const { addLog } = useLogStore()
+
     // New Admin
     const addAdmin = (adminData) => {
         if (adminList.value.some(u => u.username === adminData.username)) {
@@ -38,6 +41,14 @@ export const useAuthStore = () => {
             ...adminData
         }
         adminList.value.push(newAdmin)
+
+        addLog({
+            admin: currentUser.value ? currentUser.value.username : 'System',
+            action: '新增管理员',
+            target: adminData.username,
+            details: `Role: ${adminData.role}`
+        })
+
         return { success: true, admin: newAdmin }
     }
 
@@ -52,12 +63,21 @@ export const useAuthStore = () => {
                 }
             }
 
+            const oldName = adminList.value[index].username
             adminList.value[index] = { ...adminList.value[index], ...updatedData }
 
             // Update current user if self-modifying
             if (currentUser.value && currentUser.value.id === id) {
                 Object.assign(currentUser.value, updatedData)
             }
+
+            addLog({
+                admin: currentUser.value ? currentUser.value.username : 'System',
+                action: '编辑管理员',
+                target: oldName,
+                details: `Updated info`
+            })
+
             return { success: true }
         }
         return { success: false, message: '管理员不存在' }
@@ -71,7 +91,15 @@ export const useAuthStore = () => {
 
         const index = adminList.value.findIndex(a => a.id === id)
         if (index !== -1) {
+            const removed = adminList.value[index]
             adminList.value.splice(index, 1)
+
+            addLog({
+                admin: currentUser.value ? currentUser.value.username : 'System',
+                action: '删除管理员',
+                target: removed.username,
+                details: `Role: ${removed.role}`
+            })
             return { success: true }
         }
         return { success: false, message: '管理员不存在' }

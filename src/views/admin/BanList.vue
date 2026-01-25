@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useBanStore } from '../../composables/useBanStore'
+import { useAuthStore } from '../../composables/useAuthStore'
 import BanModal from '../../components/BanModal.vue'
 
 const { bans, addBan, removeBan, updateBan } = useBanStore()
+const { currentUser } = useAuthStore()
 
 const showModal = ref(false)
 const editMode = ref(false)
@@ -35,7 +37,12 @@ const handleSubmit = (formData) => {
             updateBan(currentBan.value.id, formData)
         }
     } else {
-        addBan(formData)
+        // Inject current admin name
+        const banData = {
+            ...formData,
+            adminName: currentUser.value ? currentUser.value.username : 'Unknown'
+        }
+        addBan(banData)
     }
     showModal.value = false
 }
@@ -111,6 +118,7 @@ const getBanTypeLabel = (type) => {
                         <th class="px-6 py-4 font-medium text-gray-300">IP 地址</th>
                         <th class="px-6 py-4 font-medium text-gray-300">原因</th>
                         <th class="px-6 py-4 font-medium text-gray-300">时长</th>
+                        <th class="px-6 py-4 font-medium text-gray-300">执行管理</th>
                         <th class="px-6 py-4 font-medium text-gray-300">状态</th>
                         <th class="px-6 py-4 font-medium text-gray-300 text-right">操作</th>
                     </tr>
@@ -125,6 +133,7 @@ const getBanTypeLabel = (type) => {
                         <td class="px-6 py-4 text-gray-400 font-mono">{{ ban.ip }}</td>
                         <td class="px-6 py-4 text-gray-300 max-w-xs truncate" :title="ban.reason">{{ ban.reason }}</td>
                         <td class="px-6 py-4 text-gray-300">{{ ban.duration }}</td>
+                        <td class="px-6 py-4 text-blue-400 font-medium">{{ ban.adminName || '-' }}</td>
                         <td class="px-6 py-4">
                             <span :class="['inline-flex items-center px-2 py-1 rounded text-xs font-medium', getStatusColor(ban.status)]">
                                 {{ getStatusText(ban.status) }}
