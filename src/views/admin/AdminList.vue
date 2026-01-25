@@ -25,27 +25,30 @@ const openEditModal = (admin) => {
     showModal.value = true
 }
 
-const handleDelete = (id) => {
+const handleDelete = async (id) => {
     if (confirm('确定要删除该管理员吗？')) {
-        const result = deleteAdmin(id)
+        const result = await deleteAdmin(id)
         if (!result.success) {
-            alert(result.message)
+            alert(result.message || '删除失败')
+        } else {
+            alert('删除成功')
         }
     }
 }
 
-const handleSubmit = (formData) => {
+const handleSubmit = async (formData) => {
     let result
     if (editMode.value) {
-        result = updateAdmin(currentAdmin.value.id, formData)
+        result = await updateAdmin(currentAdmin.value.id, formData)
     } else {
-        result = addAdmin(formData)
+        result = await addAdmin(formData)
     }
 
     if (result.success) {
         showModal.value = false
+        alert(editMode.value ? '更新成功' : '添加成功')
     } else {
-        alert(result.message)
+        alert(result.message || '操作失败')
     }
 }
 
@@ -113,8 +116,8 @@ const getRoleClass = (role) => {
                         <td class="px-6 py-4 text-gray-400 font-mono">{{ admin.steamId }}</td>
                         <td class="px-6 py-4 text-gray-400">{{ new Date(admin.createTime).toLocaleDateString() }}</td>
                         
-                         <!-- Permission Check: Only super_admin can edit/delete -->
-                        <td v-if="isSystemAdmin" class="px-6 py-4 text-right">
+                         <!-- Permission Check: Only super_admin can edit/delete, or self can edit -->
+                        <td v-if="isSystemAdmin || admin.id === currentUser?.id" class="px-6 py-4 text-right">
                              <div class="flex items-center justify-end gap-2">
                                 <button 
                                     @click="openEditModal(admin)"
@@ -148,6 +151,7 @@ const getRoleClass = (role) => {
         :show="showModal"
         :edit-mode="editMode"
         :initial-data="currentAdmin"
+        :disable-role="!isSystemAdmin"
         @close="showModal = false"
         @submit="handleSubmit"
     />

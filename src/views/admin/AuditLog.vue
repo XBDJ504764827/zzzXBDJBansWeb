@@ -55,11 +55,11 @@ const getActionColor = (action) => {
                 <tbody class="divide-y divide-white/5">
                     <tr v-for="log in logs" :key="log.id" class="hover:bg-white/5 transition-colors">
                          <td class="px-6 py-4 text-gray-400 font-mono text-xs">
-                            {{ new Date(log.time).toLocaleString() }}
+                            {{ new Date(log.created_at).toLocaleString() }}
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-700 text-gray-200">
-                                {{ log.admin }}
+                                {{ log.admin_username }}
                             </span>
                         </td>
                         <td class="px-6 py-4 font-medium" :class="getActionColor(log.action)">

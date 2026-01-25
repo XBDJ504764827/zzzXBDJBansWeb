@@ -7,7 +7,8 @@ const props = defineProps({
   initialData: {
     type: Object,
     default: () => ({})
-  }
+  },
+  disableRole: Boolean
 })
 
 const emit = defineEmits(['close', 'submit'])
@@ -130,7 +131,8 @@ const submitForm = () => {
            <label class="block text-xs font-medium text-gray-400 mb-1">权限等级</label>
            <select 
              v-model="formData.role"
-             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+             :disabled="disableRole"
+             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
            >
              <option v-for="opt in roleOptions" :key="opt.value" :value="opt.value">
                {{ opt.label }}
