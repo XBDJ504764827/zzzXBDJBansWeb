@@ -4,8 +4,8 @@ import { useBanStore } from '../../composables/useBanStore'
 import { useAuthStore } from '../../composables/useAuthStore'
 import BanModal from '../../components/BanModal.vue'
 
-const { bans, addBan, removeBan, updateBan, fetchBans } = useBanStore()
-const { currentUser } = useAuthStore()
+const { bans, addBan, removeBan, updateBan, fetchBans, deleteBanRecord } = useBanStore()
+const { currentUser, isSystemAdmin } = useAuthStore()
 
 onMounted(() => {
     fetchBans()
@@ -37,14 +37,22 @@ const openRebanModal = (ban) => {
         ip: ban.ip,
         banType: ban.banType,
         reason: ban.reason,
-        duration: '7d' // Default to 7d or keep old? User said "adjust time", implying new start.
+        duration: '7d' 
     }
     showModal.value = true
 }
 
-const handleDelete = (id) => {
-    if (confirm('确定要解除该用户的封禁吗？')) {
+// "Lift Ban" - Soft delete / Update status
+const handleLiftBan = (id) => {
+    if (confirm('确定要解除该用户的封禁吗？(将状态设为已解封)')) {
         removeBan(id)
+    }
+}
+
+// "Hard Delete" - Super Admin Only
+const handleHardDelete = (id) => {
+    if (confirm('确定要彻底删除这条封禁记录吗？\n警告：这将同时向所有服务器发送解封指令。')) {
+        deleteBanRecord(id)
     }
 }
 
@@ -190,15 +198,27 @@ const getBanTypeLabel = (type) => {
                                      </svg>
                                 </button>
 
-                                <!-- Delete (soft delete/lift ban): Only for Active -->
+                                <!-- Lift Ban (Unlock) -->
                                 <button 
                                     v-if="ban.status === 'active'"
-                                    @click="handleDelete(ban.id)"
-                                    class="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
-                                    title="解除封禁"
+                                    @click="handleLiftBan(ban.id)"
+                                    class="p-1.5 text-orange-400 hover:text-orange-300 hover:bg-orange-400/10 rounded-lg transition-colors"
+                                    title="解除封禁 (Lift Ban)"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                        <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 116 0v2h2V7a5 5 0 00-5-5z" />
+                                    </svg>
+                                </button>
+
+                                <!-- Hard Delete (Trash): Super Admin Only -->
+                                <button 
+                                    v-if="isSystemAdmin"
+                                    @click="handleHardDelete(ban.id)"
+                                    class="p-1.5 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    title="彻底删除 (移除记录并解封)"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
                              </div>

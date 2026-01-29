@@ -92,14 +92,24 @@ export const useBanStore = () => {
         }
     }
 
-    // Hard delete? Backend supports DELETE /api/bans/:id
-    // If needed. But frontend calls removeBan which in UI usually means "Lift Ban".
+    // Hard delete (Super Admin only)
+    const deleteBanRecord = async (id) => {
+        try {
+            await api.delete(`/bans/${id}`)
+            await fetchBans()
+            return true
+        } catch (e) {
+            console.error(e)
+            return false
+        }
+    }
 
     return {
         bans,
         fetchBans,
         addBan,
         removeBan,
-        updateBan
+        updateBan,
+        deleteBanRecord
     }
 }
