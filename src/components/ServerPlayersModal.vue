@@ -79,12 +79,19 @@ const promptKick = () => {
   showKickConfirm.value = true
 }
 
+const isProcessing = ref(false)
+
 const confirmKick = async () => {
-  if (!selectedPlayer.value) return
+  if (!selectedPlayer.value || isProcessing.value) return
   
-  await kickPlayer(props.server.id, selectedPlayer.value.userid, actionReason.value)
-  showKickConfirm.value = false
-  loadPlayers() // Refresh
+  isProcessing.value = true
+  try {
+    await kickPlayer(props.server.id, selectedPlayer.value.userid, actionReason.value)
+    showKickConfirm.value = false
+    loadPlayers() // Refresh
+  } finally {
+    isProcessing.value = false
+  }
 }
 
 // Ban
@@ -95,11 +102,16 @@ const promptBan = () => {
 }
 
 const confirmBan = async () => {
-  if (!selectedPlayer.value) return
+  if (!selectedPlayer.value || isProcessing.value) return
   
-  await banPlayer(props.server.id, selectedPlayer.value.userid, banDuration.value, actionReason.value)
-  showBanDialog.value = false
-  loadPlayers() // Refresh
+  isProcessing.value = true
+  try {
+    await banPlayer(props.server.id, selectedPlayer.value.userid, banDuration.value, actionReason.value)
+    showBanDialog.value = false
+    loadPlayers() // Refresh
+  } finally {
+    isProcessing.value = false
+  }
 }
 
 // Watch for open
@@ -216,8 +228,15 @@ watch(() => props.modelValue, (val) => {
             <input v-model="actionReason" type="text" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none">
           </div>
           <div class="flex justify-end gap-2">
-             <button @click="showKickConfirm = false" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
-             <button @click="confirmKick" class="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded text-sm font-bold">确定踢出</button>
+             <button @click="showKickConfirm = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
+             <button 
+               @click="confirmKick" 
+               :disabled="isProcessing"
+               class="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+                <div v-if="isProcessing" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                {{ isProcessing ? '执行中...' : '确定踢出' }}
+             </button>
           </div>
        </div>
     </div>
@@ -248,8 +267,15 @@ watch(() => props.modelValue, (val) => {
           </div>
           
           <div class="flex justify-end gap-2">
-             <button @click="showBanDialog = false" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
-             <button @click="confirmBan" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-sm font-bold">执行封禁</button>
+             <button @click="showBanDialog = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
+             <button 
+               @click="confirmBan" 
+               :disabled="isProcessing"
+               class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+                <div v-if="isProcessing" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                {{ isProcessing ? '执行中...' : '执行封禁' }}
+             </button>
           </div>
        </div>
     </div>
