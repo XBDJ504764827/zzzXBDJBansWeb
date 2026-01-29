@@ -124,6 +124,34 @@ export const useCommunityStore = () => {
         }
     }
 
+    // Players
+    const fetchPlayers = async (serverId) => {
+        try {
+            const res = await api.get(`/servers/${serverId}/players`)
+            return { success: true, data: res.data }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '获取玩家列表失败' }
+        }
+    }
+
+    const kickPlayer = async (serverId, userid, reason) => {
+        try {
+            await api.post(`/servers/${serverId}/kick`, { userid, reason })
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '踢出失败' }
+        }
+    }
+
+    const banPlayer = async (serverId, userid, duration, reason) => {
+        try {
+            await api.post(`/servers/${serverId}/ban`, { userid, duration, reason })
+            return { success: true }
+        } catch (e) {
+            return { success: false, message: e.response?.data || '封禁失败' }
+        }
+    }
+
     // Getters / Computed
     const hasCommunity = computed(() => serverGroups.value.length > 0)
 
@@ -136,6 +164,9 @@ export const useCommunityStore = () => {
         addServer,
         updateServer,
         removeServer,
-        checkServer
+        checkServer,
+        fetchPlayers,
+        kickPlayer,
+        banPlayer
     }
 }

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useCommunityStore } from '@/composables/useCommunityStore'
 import ServerGroupModal from '@/components/ServerGroupModal.vue'
 import ServerEditModal from '@/components/ServerEditModal.vue'
+import ServerPlayersModal from '@/components/ServerPlayersModal.vue'
 
 import { onMounted } from 'vue'
 
@@ -15,9 +16,11 @@ onMounted(() => {
 
 const showGroupModal = ref(false)
 const showServerModal = ref(false)
+const showPlayersModal = ref(false)
 
 const currentEditingGroup = ref(null) // ID of group being edited/added to
 const currentEditingServer = ref(null) // Server object if editing, null if adding
+const currentViewingServer = ref(null) // Server object for viewing players
 
 // --- Group Actions ---
 const openCreateGroupModal = () => {
@@ -37,6 +40,11 @@ const openEditServerModal = (groupId, server) => {
   // Clone to avoid direct mutation before save
   currentEditingServer.value = { ...server }
   showServerModal.value = true
+}
+
+const openPlayersModal = (server) => {
+  currentViewingServer.value = server
+  showPlayersModal.value = true
 }
 
 const handleDeleteServer = async (groupId, serverId) => {
@@ -154,11 +162,19 @@ const handleDeleteGroup = (groupId) => {
                     删除
                   </button>
                </div>
+               
+               <button 
+                  @click="openPlayersModal(server)"
+                  class="w-full mt-2 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded transition-colors flex items-center justify-center gap-1"
+               >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                  查看在线玩家
+               </button>
+               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Modals -->
     <ServerGroupModal 
@@ -171,6 +187,11 @@ const handleDeleteGroup = (groupId) => {
       :group-id="currentEditingGroup"
       :initial-data="currentEditingServer"
       @save="() => { showServerModal = false }"
+    />
+
+    <ServerPlayersModal
+      v-model="showPlayersModal"
+      :server="currentViewingServer"
     />
   </div>
 </template>
