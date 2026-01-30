@@ -39,10 +39,7 @@ const router = createRouter({
                     name: 'logs',
                     component: () => import('../views/admin/AuditLog.vue')
                 },
-                {
-                    path: 'player-records',
-                    name: 'player-records',
-                }
+
             ]
         },
         {
