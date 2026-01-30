@@ -2,14 +2,28 @@
 import { ref, computed, onMounted } from 'vue'
 import { useBanStore } from '../../composables/useBanStore'
 import { useAuthStore } from '../../composables/useAuthStore'
+import { useCommunityStore } from '../../composables/useCommunityStore'
 import BanModal from '../../components/BanModal.vue'
 
 const { bans, addBan, removeBan, updateBan, fetchBans, deleteBanRecord } = useBanStore()
 const { currentUser, isSystemAdmin } = useAuthStore()
+const { serverGroups, fetchServerGroups } = useCommunityStore()
 
-onMounted(() => {
-    fetchBans()
+onMounted(async () => {
+    await Promise.all([
+        fetchBans(),
+        fetchServerGroups()
+    ])
 })
+
+const getServerName = (serverId) => {
+    if (!serverId) return '网页端 / 全局'
+    for (const group of serverGroups.value) {
+        const server = group.servers.find(s => s.id === serverId)
+        if (server) return server.name
+    }
+    return 'Unknown'
+}
 
 const showModal = ref(false)
 const editMode = ref(false)
@@ -142,6 +156,7 @@ const getBanTypeLabel = (type) => {
                         <th class="px-6 py-4 font-medium text-gray-300">封禁属性</th>
                         <th class="px-6 py-4 font-medium text-gray-300">封禁时间</th>
                         <th class="px-6 py-4 font-medium text-gray-300">时长 / 解封时间</th>
+                        <th class="px-6 py-4 font-medium text-gray-300">来源服务器</th>
                         <th class="px-6 py-4 font-medium text-gray-300">原因</th>
                         <th class="px-6 py-4 font-medium text-gray-300">执行管理</th>
                         <th class="px-6 py-4 font-medium text-gray-300">状态</th>
@@ -165,6 +180,7 @@ const getBanTypeLabel = (type) => {
                                  {{ ban.expiresAt ? new Date(ban.expiresAt).toLocaleString() : (ban.duration === 'permanent' ? '永久' : '-') }}
                              </div>
                         </td>
+                        <td class="px-6 py-4 text-gray-300 text-sm">{{ getServerName(ban.serverId) }}</td>
                         <td class="px-6 py-4 text-gray-300 max-w-xs truncate" :title="ban.reason">{{ ban.reason }}</td>
                         <td class="px-6 py-4 text-blue-400 font-medium">{{ ban.adminName || '-' }}</td>
                         <td class="px-6 py-4">

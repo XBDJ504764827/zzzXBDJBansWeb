@@ -17,7 +17,8 @@ export const useBanStore = () => {
         status: b.status,
         adminName: b.admin_name,
         createTime: b.created_at,
-        expiresAt: b.expires_at
+        expiresAt: b.expires_at,
+        serverId: b.server_id
     })
 
     const fetchBans = async () => {
