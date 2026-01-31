@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import api from '@/utils/api'
 
 const whitelist = ref([])
 const loading = ref(false)
@@ -12,13 +13,8 @@ const formData = ref({
 const fetchWhitelist = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
-    const res = await fetch('/api/whitelist', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    if (res.ok) {
-      whitelist.value = await res.json()
-    }
+    const res = await api.get('/whitelist')
+    whitelist.value = res.data
   } catch (err) {
     console.error(err)
   } finally {
@@ -28,17 +24,9 @@ const fetchWhitelist = async () => {
 
 const handleAdd = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const res = await fetch('/api/whitelist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(formData.value)
-    })
+    const res = await api.post('/whitelist', formData.value)
     
-    if (res.ok) {
+    if (res.status === 200 || res.status === 201) {
       showAddModal.value = false
       formData.value = { steam_id: '', name: '' }
       fetchWhitelist()
@@ -47,6 +35,7 @@ const handleAdd = async () => {
     }
   } catch (err) {
     console.error(err)
+    alert('Failed to add whitelist: ' + (err.response?.data?.error || err.message))
   }
 }
 
@@ -54,13 +43,9 @@ const handleDelete = async (id) => {
   if (!confirm('确定要删除吗？')) return
 
   try {
-    const token = localStorage.getItem('token')
-    const res = await fetch(`/api/whitelist/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    const res = await api.delete(`/whitelist/${id}`)
     
-    if (res.ok) {
+    if (res.status === 200) {
       fetchWhitelist()
     }
   } catch (err) {
