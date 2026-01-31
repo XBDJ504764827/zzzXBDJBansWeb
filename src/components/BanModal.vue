@@ -158,8 +158,9 @@ const closeSelects = () => {
 }
 
 const validateSteamId = (id) => {
-  const steamRegex = /^(STEAM_[0-5]:[01]:\d+|\[U:1:\d+\]|7656119\d{10})$/
-  return steamRegex.test(id)
+  // Relaxed validation: Allow any non-empty string. 
+  // Backend handles resolution of SteamID64/3/2, Profile URLs, Vanity URLs etc.
+  return id && id.trim().length > 0;
 }
 
 const submitForm = () => {
