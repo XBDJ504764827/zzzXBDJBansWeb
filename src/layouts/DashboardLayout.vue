@@ -22,11 +22,16 @@ const navigation = [
   { name: '进服申请', href: '/admin/whitelist', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
 ]
 
+import ChangePasswordModal from '../components/ChangePasswordModal.vue'
+
 const currentRoute = computed(() => route.path)
+const showPasswordModal = ref(false)
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-950 flex font-sans text-slate-200">
+    <!-- Change Password Modal -->
+    <ChangePasswordModal :isOpen="showPasswordModal" @close="showPasswordModal = false" />
     <!-- Sidebar -->
     <aside 
       class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 transition-transform duration-300 ease-in-out transform lg:translate-x-0 lg:static lg:inset-0"
@@ -78,6 +83,15 @@ const currentRoute = computed(() => route.path)
                <p class="text-xs text-slate-500 truncate">{{ isSystemAdmin ? 'System Admin' : 'Admin' }}</p>
              </div>
           </div>
+          <button 
+            @click="showPasswordModal = true"
+            class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+            title="修改密码"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 000-2z" clip-rule="evenodd" />
+            </svg>
+          </button>
           <button 
             @click="handleLogout"
             class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"

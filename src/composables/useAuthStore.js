@@ -120,6 +120,19 @@ export const useAuthStore = () => {
         }
     }
 
+    // Change Password
+    const changePassword = async (oldPassword, newPassword) => {
+        try {
+            const res = await api.post('/auth/change-password', {
+                old_password: oldPassword,
+                new_password: newPassword
+            })
+            return { success: true, message: res.data.message }
+        } catch (e) {
+            return { success: false, message: e.response?.data?.error || '修改失败' }
+        }
+    }
+
     const isSystemAdmin = computed(() => {
         return currentUser.value && currentUser.value.role === 'super_admin'
     })
@@ -134,6 +147,7 @@ export const useAuthStore = () => {
         fetchAdmins,
         addAdmin,
         updateAdmin,
-        deleteAdmin
+        deleteAdmin,
+        changePassword
     }
 }
