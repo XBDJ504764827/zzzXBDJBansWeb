@@ -39,6 +39,11 @@ const router = createRouter({
                     name: 'logs',
                     component: () => import('../views/admin/AuditLog.vue')
                 },
+                {
+                    path: 'whitelist',
+                    name: 'whitelist',
+                    component: () => import('../views/admin/WhitelistManagement.vue')
+                },
 
             ]
         },
