@@ -155,6 +155,9 @@ const handleDeleteGroup = (groupId) => {
                </div>
 
                <h4 class="font-bold text-slate-200 mb-1 pr-6 truncate">{{ server.name }}</h4>
+               <div class="flex items-center gap-2 mb-2">
+                 <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800 font-mono">ID: {{ server.id }}</span>
+               </div>
                <div class="text-xs font-mono text-slate-500 mb-4">{{ server.ip }}:{{ server.port }}</div>
                
                <div class="flex gap-2 mt-auto pt-4 border-t border-slate-900">
