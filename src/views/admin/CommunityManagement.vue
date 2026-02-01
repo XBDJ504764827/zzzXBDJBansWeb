@@ -140,9 +140,18 @@ const handleDeleteGroup = (groupId) => {
               class="bg-slate-950 border border-slate-800 rounded-lg p-4 hover:border-slate-700 transition-colors group/card relative"
             >
                <!-- Server Status Indicator -->
-               <div class="absolute top-4 right-4 flex h-3 w-3">
-                  <span v-if="server.status === 'online'" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span :class="server.status === 'online' ? 'bg-green-500' : 'bg-red-500'" class="relative inline-flex rounded-full h-3 w-3"></span>
+               <div class="absolute top-4 right-4 flex gap-2">
+                  <!-- Verification Status -->
+                  <div class="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-800" :class="server.verification_enabled ? 'text-green-400 border-green-900/30' : 'text-slate-500'">
+                     <span v-if="server.verification_enabled">🛡️ 验证开启</span>
+                     <span v-else>🛡️ 验证关闭</span>
+                  </div>
+
+                  <!-- Online Status -->
+                  <div class="flex h-3 w-3 mt-1 relative">
+                    <span v-if="server.status === 'online'" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span :class="server.status === 'online' ? 'bg-green-500' : 'bg-red-500'" class="relative inline-flex rounded-full h-3 w-3"></span>
+                  </div>
                </div>
 
                <h4 class="font-bold text-slate-200 mb-1 pr-6 truncate">{{ server.name }}</h4>

@@ -38,10 +38,11 @@ watch(() => props.modelValue, (val) => {
     if (props.initialData) {
       form.value = { 
           ...props.initialData,
-          rcon_password: props.initialData.rcon_password || '' 
+          rcon_password: props.initialData.rcon_password || '',
+          verification_enabled: props.initialData.verification_enabled !== false // Default true if undefined
       }
     } else {
-      form.value = { name: '', ip: '', port: '27015', rcon_password: '' }
+      form.value = { name: '', ip: '', port: '27015', rcon_password: '', verification_enabled: true }
     }
   } else {
     // Reset check status on close
@@ -160,6 +161,15 @@ const handleCheck = async () => {
             />
              <p v-if="errors.port" class="text-red-500 text-xs mt-1">{{ errors.port }}</p>
           </div>
+        </div>
+        
+        <!-- Verification Toggle -->
+        <div class="flex items-center gap-3 py-2">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" v-model="form.verification_enabled" class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-3 text-sm font-medium text-slate-300">启用入服资格验证</span>
+            </label>
         </div>
 
         <!-- RCON -->
