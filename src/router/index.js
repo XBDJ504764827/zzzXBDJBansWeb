@@ -44,7 +44,11 @@ const router = createRouter({
                     name: 'whitelist',
                     component: () => import('../views/admin/WhitelistManagement.vue')
                 },
-
+                {
+                    path: 'verifications',
+                    name: 'verifications',
+                    component: () => import('../views/admin/VerificationList.vue')
+                },
             ]
         },
         {
