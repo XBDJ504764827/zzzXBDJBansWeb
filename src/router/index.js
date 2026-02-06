@@ -11,6 +11,11 @@ const router = createRouter({
             component: LoginView,
         },
         {
+            path: '/apply',
+            name: 'apply',
+            component: () => import('../views/WhitelistApply.vue'),
+        },
+        {
             path: '/admin',
             component: DashboardLayout,
             meta: { requiresAuth: true },
