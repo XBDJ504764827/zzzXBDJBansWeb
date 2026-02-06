@@ -10,6 +10,8 @@ export const useBanStore = () => {
         id: b.id,
         name: b.name,
         steamId: b.steam_id,
+        steam_id_3: b.steam_id_3,
+        steam_id_64: b.steam_id_64,
         ip: b.ip,
         banType: b.ban_type, // "account" or "ip"
         reason: b.reason,

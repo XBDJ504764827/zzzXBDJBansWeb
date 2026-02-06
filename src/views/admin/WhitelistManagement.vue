@@ -78,8 +78,10 @@ onMounted(fetchWhitelist)
           <thead>
             <tr class="bg-slate-950/50 border-b border-slate-800">
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">ID</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">Steam ID</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">玩家昵称</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID2</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID3</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">状态</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">添加时间</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
@@ -87,15 +89,17 @@ onMounted(fetchWhitelist)
           </thead>
           <tbody class="divide-y divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
-                <td colspan="6" class="p-4 text-center text-slate-500">Loading...</td>
+                <td colspan="8" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
             <tr v-else-if="whitelist.length === 0">
-                <td colspan="6" class="p-4 text-center text-slate-500">暂无数据</td>
+                <td colspan="8" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
             <tr v-for="item in whitelist" :key="item.id" class="group hover:bg-slate-800/50 transition-colors">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id }}</td>
               <td class="p-4 text-slate-300">{{ item.name }}</td>
+              <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id || '-' }}</td>
+              <td class="p-4 font-mono text-sm text-green-400">{{ item.steam_id_3 || '-' }}</td>
+              <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || '-' }}</td>
               <td class="p-4">
                   <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
                       {{ item.status || 'Approved' }}

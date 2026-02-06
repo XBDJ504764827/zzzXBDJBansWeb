@@ -179,7 +179,9 @@ const getBanTypeLabel = (type) => {
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium text-white">{{ ban.name }}</span>
-                                    <span class="text-xs text-gray-400">{{ ban.steamId }}</span>
+                                    <span class="text-xs text-blue-400 font-mono">{{ ban.steamId }}</span>
+                                    <span v-if="ban.steam_id_3" class="text-xs text-green-400 font-mono">{{ ban.steam_id_3 }}</span>
+                                    <span v-if="ban.steam_id_64" class="text-xs text-yellow-400 font-mono">{{ ban.steam_id_64 }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
