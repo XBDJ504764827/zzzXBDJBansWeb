@@ -84,6 +84,27 @@ const handleReject = async (id) => {
 }
 
 onMounted(fetchWhitelist)
+
+// Context Menu Logic
+const showContextMenu = ref(false)
+const contextMenuPosition = ref({ x: 0, y: 0 })
+const selectedPlayer = ref(null)
+
+const handleContextMenu = (event, item) => {
+  showContextMenu.value = true
+  contextMenuPosition.value = { x: event.clientX, y: event.clientY }
+  selectedPlayer.value = item
+}
+
+const closeContextMenu = () => {
+  showContextMenu.value = false
+}
+
+const getPlayerSteamId = (player) => {
+  if (!player) return null
+  // 优先使用 steam_id_64，如果没有则尝试使用 steam_id
+  return player.steam_id_64 || player.steam_id
+}
 </script>
 
 <template>
@@ -163,7 +184,7 @@ onMounted(fetchWhitelist)
             <tr v-else-if="whitelist.length === 0">
                 <td colspan="7" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
-            <tr v-for="item in whitelist" :key="item.id" class="group hover:bg-slate-800/50 transition-colors">
+            <tr v-for="item in whitelist" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-300">{{ item.name }}</td>
               <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id || '-' }}</td>
@@ -209,7 +230,7 @@ onMounted(fetchWhitelist)
             <tr v-else-if="pendingList.length === 0">
                 <td colspan="5" class="p-4 text-center text-slate-500">暂无待审核申请</td>
             </tr>
-            <tr v-for="item in pendingList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors">
+            <tr v-for="item in pendingList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-300">{{ item.name }}</td>
               <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
@@ -264,7 +285,7 @@ onMounted(fetchWhitelist)
             <tr v-else-if="rejectedList.length === 0">
                 <td colspan="5" class="p-4 text-center text-slate-500">暂无已拒绝申请</td>
             </tr>
-            <tr v-for="item in rejectedList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors">
+            <tr v-for="item in rejectedList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-300">{{ item.name }}</td>
               <td class="p-4 font-mono text-sm text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
@@ -333,6 +354,43 @@ onMounted(fetchWhitelist)
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div v-if="showContextMenu" class="fixed inset-0 z-[100]" @click="closeContextMenu" @contextmenu.prevent="closeContextMenu">
+      <div 
+        class="fixed bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 w-48 overflow-hidden"
+        :style="{ top: `${contextMenuPosition.y}px`, left: `${contextMenuPosition.x}px` }"
+        @click.stop
+      >
+        <a 
+          v-if="getPlayerSteamId(selectedPlayer)"
+          :href="`https://gokz.top/profile/${getPlayerSteamId(selectedPlayer)}`"
+          target="_blank"
+          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          @click="closeContextMenu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          GOKZ.TOP 主页
+        </a>
+        <a 
+          v-if="getPlayerSteamId(selectedPlayer)"
+          :href="`https://kzgo.eu/players/${getPlayerSteamId(selectedPlayer)}`"
+          target="_blank"
+          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          @click="closeContextMenu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          GOKZ.EU 主页
+        </a>
+        <div v-else class="px-4 py-2 text-sm text-slate-500 italic">
+          无效的 SteamID
+        </div>
       </div>
     </div>
   </div>
