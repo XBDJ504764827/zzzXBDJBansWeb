@@ -252,7 +252,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import axios from 'axios';
+import api from '@/utils/api'; // Use configured API instance
 
 const list = ref([]);
 const loading = ref(true);
@@ -271,10 +271,20 @@ const tabs = [
 const fetchList = async () => {
     loading.value = true;
     try {
-        const response = await axios.get('/api/whitelist/public-list');
-        list.value = response.data;
+        // Use api instance which handles baseURL ("/api") automatically.
+        // The backend route is /api/whitelist/public-list.
+        // Since baseURL is /api, we should request /whitelist/public-list
+        const response = await api.get('/whitelist/public-list');
+        
+        if (Array.isArray(response.data)) {
+            list.value = response.data;
+        } else {
+            console.error('Invalid response format:', response.data);
+            list.value = []; // Fallback to empty array
+        }
     } catch (error) {
         console.error('Failed to fetch whitelist:', error);
+        list.value = [];
     } finally {
         loading.value = false;
     }
