@@ -16,6 +16,11 @@ const router = createRouter({
             component: () => import('../views/WhitelistApply.vue'),
         },
         {
+            path: '/whitelist-status',
+            name: 'whitelist-status',
+            component: () => import('../views/WhitelistStatus.vue'),
+        },
+        {
             path: '/admin',
             component: DashboardLayout,
             meta: { requiresAuth: true },

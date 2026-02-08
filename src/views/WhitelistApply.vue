@@ -133,6 +133,12 @@ const handleSubmit = async () => {
           </span>
           <span v-else>提交申请</span>
         </button>
+
+        <div class="text-center mt-4">
+          <router-link to="/whitelist-status" class="text-sm text-blue-400 hover:text-blue-300">
+            已提交申请？点击查看审核状态 &rarr;
+          </router-link>
+        </div>
       </form>
 
 
