@@ -23,7 +23,7 @@ api.interceptors.response.use(response => {
     if (error.response && error.response.status === 401) {
         // Token expired or invalid
         localStorage.removeItem('token')
-        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         window.location.href = '/' // Redirect to login
     }
     return Promise.reject(error)
