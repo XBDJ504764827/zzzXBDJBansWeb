@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import api from '@/utils/api'
+import { debounce } from 'lodash-es'
 
 const formData = ref({
   steam_id: '',
@@ -10,6 +11,24 @@ const formData = ref({
 const submitting = ref(false)
 const submitted = ref(false)
 const error = ref('')
+
+// Player check state
+const checkingPlayer = ref(false)
+const playerInfo = ref(null)
+const playerCheckError = ref('')
+const confirmationStatus = ref('none') // 'none', 'pending', 'confirmed_me', 'confirmed_other'
+
+const isNameDisabled = computed(() => {
+  // Disabled if:
+  // 1. Checking player info
+  // 2. Player info found but not confirmed yet
+  // 3. Confirmed as "Me" (Auto-filled and locked)
+  // Enabled only if:
+  // 1. Confirmed as "Not Me" (Manual entry)
+  // 2. Or maybe if no Steam ID entered yet? (But user said "When querying... is not fillable")
+  // Let's stick to: Disabled unless 'confirmed_other'
+  return confirmationStatus.value !== 'confirmed_other'
+})
 
 const checkRateLimit = () => {
   const lastSubmit = localStorage.getItem('last_whitelist_submit')
@@ -22,6 +41,59 @@ const checkRateLimit = () => {
   }
   return null
 }
+
+const checkPlayer = async (val) => {
+  if (!val) {
+    playerInfo.value = null
+    playerCheckError.value = ''
+    confirmationStatus.value = 'none'
+    formData.value.name = ''
+    return
+  }
+  
+  if (val.length < 5) return
+
+  checkingPlayer.value = true
+  playerCheckError.value = ''
+  playerInfo.value = null
+  confirmationStatus.value = 'none'
+  formData.value.name = '' // Clear name on new search
+  
+  try {
+    const res = await api.get('/whitelist/player-info', {
+      params: { steam_id: val }
+    })
+    playerInfo.value = res.data
+    confirmationStatus.value = 'pending'
+  } catch (err) {
+    if (err.response?.status === 404) {
+       playerCheckError.value = '未找到玩家，请检查 Steam ID'
+    } else {
+       console.error(err)
+    }
+  } finally {
+    checkingPlayer.value = false
+  }
+}
+
+const confirmIsMe = () => {
+  if (playerInfo.value) {
+    formData.value.name = playerInfo.value.personaname
+    confirmationStatus.value = 'confirmed_me'
+  }
+}
+
+const confirmNotMe = () => {
+  formData.value.name = ''
+  confirmationStatus.value = 'confirmed_other'
+}
+
+// Debounce the check
+const debouncedCheck = debounce(checkPlayer, 800)
+
+watch(() => formData.value.steam_id, (val) => {
+  debouncedCheck(val)
+})
 
 const handleSubmit = async () => {
   error.value = ''
@@ -96,14 +168,62 @@ const handleSubmit = async () => {
         <!-- Steam ID -->
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-2">Steam ID</label>
-          <input 
-            v-model="formData.steam_id"
-            type="text" 
-            required
-            placeholder="76561198000000000 或 STEAM_0:0:xxx"
-            class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-          >
-          <p class="mt-1.5 text-xs text-slate-500">支持 SteamID64、SteamID2、SteamID3 或个人资料链接</p>
+          <div class="relative">
+             <input 
+              v-model="formData.steam_id"
+              type="text" 
+              required
+              placeholder="76561198000000000 或 STEAM_0:0:xxx"
+              class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all pr-10"
+              :class="{'border-red-500': playerCheckError, 'border-green-500': confirmationStatus === 'pending' || confirmationStatus.startsWith('confirmed')}"
+            >
+             <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                <svg v-if="checkingPlayer" class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+             </div>
+          </div>
+          
+          <p v-if="playerCheckError" class="mt-1.5 text-xs text-red-400">{{ playerCheckError }}</p>
+          <p v-else class="mt-1.5 text-xs text-slate-500">支持 SteamID64、SteamID2、SteamID3 或个人资料链接</p>
+          
+          <!-- Player Confirmation -->
+          <div v-if="playerInfo" class="mt-4 bg-slate-800/50 rounded-xl p-4 border border-slate-700 animate-in fade-in slide-in-from-top-2">
+              <div class="flex items-center gap-3 mb-3">
+                <img :src="playerInfo.avatarfull" class="w-12 h-12 rounded-full border border-slate-600" alt="Avatar">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">检测到玩家</p>
+                    <p class="text-lg font-bold text-white truncate">{{ playerInfo.personaname }}</p>
+                </div>
+              </div>
+
+              <!-- Confirmation Buttons -->
+              <div v-if="confirmationStatus === 'pending'" class="flex gap-3">
+                  <button type="button" @click="confirmIsMe" class="flex-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/50 py-2 rounded-lg text-sm font-medium transition-colors">
+                      是本人
+                  </button>
+                  <button type="button" @click="confirmNotMe" class="flex-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600 py-2 rounded-lg text-sm font-medium transition-colors">
+                      不是本人
+                  </button>
+              </div>
+
+              <!-- Status Display -->
+              <div v-else-if="confirmationStatus === 'confirmed_me'" class="flex items-center gap-2 text-green-400 bg-green-500/10 px-3 py-2 rounded-lg text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>已确认为本人</span>
+                  <button type="button" @click="checkPlayer(formData.steam_id)" class="ml-auto text-xs underline opacity-75 hover:opacity-100">重选</button>
+              </div>
+              <div v-else-if="confirmationStatus === 'confirmed_other'" class="flex items-center gap-2 text-yellow-400 bg-yellow-500/10 px-3 py-2 rounded-lg text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                  <span>请修改您的信息或手动填写昵称</span>
+                  <button type="button" @click="checkPlayer(formData.steam_id)" class="ml-auto text-xs underline opacity-75 hover:opacity-100">重选</button>
+              </div>
+          </div>
         </div>
 
         <!-- Nickname -->
@@ -113,15 +233,22 @@ const handleSubmit = async () => {
             v-model="formData.name"
             type="text" 
             required
+            :disabled="isNameDisabled"
             placeholder="您在游戏中的昵称"
-            class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            class="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
+          <p class="mt-1.5 text-xs text-slate-500">
+             <span v-if="confirmationStatus === 'none'">请先填写 Steam ID</span>
+             <span v-else-if="confirmationStatus === 'pending'">请确认是否为本人</span>
+             <span v-else-if="confirmationStatus === 'confirmed_me'">已自动填写 Steam 昵称</span>
+             <span v-else>请手动填写游戏昵称</span>
+          </p>
         </div>
 
         <!-- Submit Button -->
         <button 
           type="submit"
-          :disabled="submitting"
+          :disabled="submitting || confirmationStatus === 'none' || confirmationStatus === 'pending'"
           class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-slate-600 disabled:to-slate-600 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:shadow-none"
         >
           <span v-if="submitting" class="flex items-center justify-center gap-2">
@@ -145,3 +272,5 @@ const handleSubmit = async () => {
     </div>
   </div>
 </template>
+
+
