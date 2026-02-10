@@ -21,6 +21,11 @@ const router = createRouter({
             component: () => import('../views/WhitelistStatus.vue'),
         },
         {
+            path: '/bans',
+            name: 'public-bans',
+            component: () => import('../views/PublicBanList.vue'),
+        },
+        {
             path: '/admin',
             component: DashboardLayout,
             meta: { requiresAuth: true },

@@ -90,6 +90,19 @@ const router = useRouter()
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </button>
+
+          <div class="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-slate-800/50">
+              <router-link to="/apply" class="text-sm font-medium text-slate-500 hover:text-indigo-400 transition-colors">
+                  申请白名单
+              </router-link>
+               <router-link to="/whitelist-status" class="text-sm font-medium text-slate-500 hover:text-indigo-400 transition-colors">
+                  进度查询
+              </router-link>
+              <router-link to="/bans" class="text-sm font-medium text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  封禁公示
+              </router-link>
+          </div>
         </form>
       </div>
       
