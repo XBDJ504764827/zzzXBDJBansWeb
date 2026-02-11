@@ -1,9 +1,36 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const verifications = ref([])
 const loading = ref(false)
+
+// Confirm Modal Logic
+const confirmModal = ref({
+    show: false,
+    title: '',
+    content: '',
+    type: 'info',
+    onConfirm: null
+})
+
+const openConfirmModal = (title, content, type, onConfirm) => {
+    confirmModal.value = {
+        show: true,
+        title,
+        content,
+        type,
+        onConfirm
+    }
+}
+
+const handleConfirm = () => {
+    if (confirmModal.value.onConfirm) {
+        confirmModal.value.onConfirm()
+    }
+    confirmModal.value.show = false
+}
 
 const fetchVerifications = async () => {
   loading.value = true
@@ -18,17 +45,21 @@ const fetchVerifications = async () => {
 }
 
 const handleDelete = async (steam_id) => {
-  if (!confirm('确定要删除吗？')) return
-
-  try {
-    const res = await api.delete(`/verifications/${steam_id}`)
-    
-    if (res.status === 200 || res.status === 204) {
-      fetchVerifications()
+  openConfirmModal(
+    '删除验证记录',
+    '确定要删除吗？',
+    'danger',
+    async () => {
+        try {
+            const res = await api.delete(`/verifications/${steam_id}`)
+            if (res.status === 200 || res.status === 204) {
+                fetchVerifications()
+            }
+        } catch (err) {
+            console.error(err)
+        }
     }
-  } catch (err) {
-    console.error(err)
-  }
+  )
 }
 
 const getStatusColor = (status) => {
@@ -105,5 +136,15 @@ onMounted(fetchVerifications)
     </div>
 
 
+
+
+    <ConfirmModal 
+        :show="confirmModal.show"
+        :title="confirmModal.title"
+        :content="confirmModal.content"
+        :type="confirmModal.type"
+        @close="confirmModal.show = false"
+        @confirm="handleConfirm"
+    />
   </div>
 </template>

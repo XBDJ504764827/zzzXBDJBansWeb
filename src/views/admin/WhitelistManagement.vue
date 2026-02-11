@@ -13,6 +13,34 @@ const formData = ref({
   name: ''
 })
 
+// Confirm Modal Logic
+import ConfirmModal from '../../components/ConfirmModal.vue'
+
+const confirmModal = ref({
+    show: false,
+    title: '',
+    content: '',
+    type: 'info',
+    onConfirm: null
+})
+
+const openConfirmModal = (title, content, type, onConfirm) => {
+    confirmModal.value = {
+        show: true,
+        title,
+        content,
+        type,
+        onConfirm
+    }
+}
+
+const handleConfirm = () => {
+    if (confirmModal.value.onConfirm) {
+        confirmModal.value.onConfirm()
+    }
+    confirmModal.value.show = false
+}
+
 const fetchWhitelist = async () => {
   loading.value = true
   try {
@@ -49,17 +77,21 @@ const handleAdd = async () => {
 }
 
 const handleDelete = async (id) => {
-  if (!confirm('确定要删除吗？')) return
-
-  try {
-    const res = await api.delete(`/whitelist/${id}`)
-    
-    if (res.status === 200) {
-      fetchWhitelist()
+  openConfirmModal(
+    '删除确认',
+    '确定要删除这条白名单记录吗？',
+    'danger',
+    async () => {
+        try {
+            const res = await api.delete(`/whitelist/${id}`)
+            if (res.status === 200) {
+                fetchWhitelist()
+            }
+        } catch (err) {
+            console.error(err)
+        }
     }
-  } catch (err) {
-    console.error(err)
-  }
+  )
 }
 
 const handleApprove = async (id) => {
@@ -73,14 +105,20 @@ const handleApprove = async (id) => {
 }
 
 const handleReject = async (id) => {
-  if (!confirm('确定要拒绝此申请吗？')) return
-  try {
-    await api.put(`/whitelist/${id}/reject`)
-    fetchWhitelist()
-  } catch (err) {
-    console.error(err)
-    alert('操作失败')
-  }
+  openConfirmModal(
+    '拒绝确认',
+    '确定要拒绝此进服申请吗？',
+    'warning',
+    async () => {
+        try {
+            await api.put(`/whitelist/${id}/reject`)
+            fetchWhitelist()
+        } catch (err) {
+            console.error(err)
+            alert('操作失败')
+        }
+    }
+  )
 }
 
 onMounted(fetchWhitelist)
@@ -393,5 +431,15 @@ const getPlayerSteamId = (player) => {
         </div>
       </div>
     </div>
+
+    
+    <ConfirmModal 
+        :show="confirmModal.show"
+        :title="confirmModal.title"
+        :content="confirmModal.content"
+        :type="confirmModal.type"
+        @close="confirmModal.show = false"
+        @confirm="handleConfirm"
+    />
   </div>
 </template>

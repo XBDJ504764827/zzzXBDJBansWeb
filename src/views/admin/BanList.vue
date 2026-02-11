@@ -4,6 +4,7 @@ import { useBanStore } from '../../composables/useBanStore'
 import { useAuthStore } from '../../composables/useAuthStore'
 import { useCommunityStore } from '../../composables/useCommunityStore'
 import BanModal from '../../components/BanModal.vue'
+import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const { bans, addBan, removeBan, updateBan, fetchBans, deleteBanRecord } = useBanStore()
 const { currentUser, isSystemAdmin } = useAuthStore()
@@ -41,6 +42,32 @@ const showModal = ref(false)
 const editMode = ref(false)
 const currentBan = ref({})
 
+// Confirm Modal State
+const confirmModal = ref({
+    show: false,
+    title: '',
+    content: '',
+    type: 'info',
+    onConfirm: null
+})
+
+const openConfirmModal = (title, content, type, onConfirm) => {
+    confirmModal.value = {
+        show: true,
+        title,
+        content,
+        type,
+        onConfirm
+    }
+}
+
+const handleConfirm = () => {
+    if (confirmModal.value.onConfirm) {
+        confirmModal.value.onConfirm()
+    }
+    confirmModal.value.show = false
+}
+
 const hasBans = computed(() => bans.value.length > 0)
 
 const openAddModal = () => {
@@ -70,16 +97,22 @@ const openRebanModal = (ban) => {
 
 // "Lift Ban" - Soft delete / Update status
 const handleLiftBan = (id) => {
-    if (confirm('确定要解除该用户的封禁吗？(将状态设为已解封)')) {
-        removeBan(id)
-    }
+    openConfirmModal(
+        '解除封禁确认',
+        '确定要解除该用户的封禁吗？(将状态设为已解封)',
+        'warning',
+        () => removeBan(id)
+    )
 }
 
 // "Hard Delete" - Super Admin Only
 const handleHardDelete = (id) => {
-    if (confirm('确定要彻底删除这条封禁记录吗？\n警告：这将同时向所有服务器发送解封指令。')) {
-        deleteBanRecord(id)
-    }
+    openConfirmModal(
+        '彻底删除确认',
+        '确定要彻底删除这条封禁记录吗？\n警告：这将同时向所有服务器发送解封指令，且记录不可恢复。',
+        'danger',
+        () => deleteBanRecord(id)
+    )
 }
 
 const handleSubmit = (formData) => {
@@ -301,6 +334,15 @@ const getBanTypeLabel = (type) => {
         :initial-data="currentBan"
         @close="showModal = false"
         @submit="handleSubmit"
+    />
+
+    <ConfirmModal 
+        :show="confirmModal.show"
+        :title="confirmModal.title"
+        :content="confirmModal.content"
+        :type="confirmModal.type"
+        @close="confirmModal.show = false"
+        @confirm="handleConfirm"
     />
   </div>
 </template>

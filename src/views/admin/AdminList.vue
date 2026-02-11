@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../composables/useAuthStore'
 import AdminModal from '../../components/AdminModal.vue'
+import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const { adminList, isSystemAdmin, addAdmin, updateAdmin, deleteAdmin, currentUser, fetchAdmins } = useAuthStore()
 
@@ -25,15 +26,46 @@ const openEditModal = (admin) => {
     showModal.value = true
 }
 
-const handleDelete = async (id) => {
-    if (confirm('确定要删除该管理员吗？')) {
-        const result = await deleteAdmin(id)
-        if (!result.success) {
-            alert(result.message || '删除失败')
-        } else {
-            alert('删除成功')
-        }
+// Confirm Modal Logic
+const confirmModal = ref({
+    show: false,
+    title: '',
+    content: '',
+    type: 'info',
+    onConfirm: null
+})
+
+const openConfirmModal = (title, content, type, onConfirm) => {
+    confirmModal.value = {
+        show: true,
+        title,
+        content,
+        type,
+        onConfirm
     }
+}
+
+const handleConfirm = () => {
+    if (confirmModal.value.onConfirm) {
+        confirmModal.value.onConfirm()
+    }
+    confirmModal.value.show = false
+}
+
+const handleDelete = async (id) => {
+    openConfirmModal(
+        '删除管理员',
+        '确定要删除该管理员吗？',
+        'danger',
+        async () => {
+             const result = await deleteAdmin(id)
+            if (!result.success) {
+                alert(result.message || '删除失败')
+            } else {
+                alert('删除成功')
+            }
+        }
+    )
 }
 
 const handleSubmit = async (formData) => {
@@ -153,7 +185,17 @@ const getRoleClass = (role) => {
         :initial-data="currentAdmin"
         :disable-role="!isSystemAdmin"
         @close="showModal = false"
+
         @submit="handleSubmit"
+    />
+
+    <ConfirmModal 
+        :show="confirmModal.show"
+        :title="confirmModal.title"
+        :content="confirmModal.content"
+        :type="confirmModal.type"
+        @close="confirmModal.show = false"
+        @confirm="handleConfirm"
     />
   </div>
 </template>

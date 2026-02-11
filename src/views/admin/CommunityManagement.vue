@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import { useCommunityStore } from '@/composables/useCommunityStore'
 import ServerGroupModal from '@/components/ServerGroupModal.vue'
 import ServerEditModal from '@/components/ServerEditModal.vue'
+
 import ServerPlayersModal from '@/components/ServerPlayersModal.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 
 import { onMounted } from 'vue'
 
@@ -17,6 +19,32 @@ onMounted(() => {
 const showGroupModal = ref(false)
 const showServerModal = ref(false)
 const showPlayersModal = ref(false)
+
+// Confirm Modal Logic
+const confirmModal = ref({
+    show: false,
+    title: '',
+    content: '',
+    type: 'info',
+    onConfirm: null
+})
+
+const openConfirmModal = (title, content, type, onConfirm) => {
+    confirmModal.value = {
+        show: true,
+        title,
+        content,
+        type,
+        onConfirm
+    }
+}
+
+const handleConfirm = () => {
+    if (confirmModal.value.onConfirm) {
+        confirmModal.value.onConfirm()
+    }
+    confirmModal.value.show = false
+}
 
 const currentEditingGroup = ref(null) // ID of group being edited/added to
 const currentEditingServer = ref(null) // Server object if editing, null if adding
@@ -48,15 +76,21 @@ const openPlayersModal = (server) => {
 }
 
 const handleDeleteServer = async (groupId, serverId) => {
-  if (confirm('确定要删除这个服务器吗？')) {
-    removeServer(groupId, serverId)
-  }
+  openConfirmModal(
+    '删除服务器',
+    '确定要删除这个服务器吗？',
+    'danger',
+    () => removeServer(groupId, serverId)
+  )
 }
 
 const handleDeleteGroup = (groupId) => {
-  if (confirm('确定要删除这个服务器组吗？组内所有服务器也将被删除。')) {
-    removeServerGroup(groupId)
-  }
+  openConfirmModal(
+    '删除服务器组',
+    '确定要删除这个服务器组吗？组内所有服务器也将被删除。',
+    'danger',
+    () => removeServerGroup(groupId)
+  )
 }
 </script>
 
@@ -204,6 +238,15 @@ const handleDeleteGroup = (groupId) => {
     <ServerPlayersModal
       v-model="showPlayersModal"
       :server="currentViewingServer"
+    />
+
+    <ConfirmModal 
+        :show="confirmModal.show"
+        :title="confirmModal.title"
+        :content="confirmModal.content"
+        :type="confirmModal.type"
+        @close="confirmModal.show = false"
+        @confirm="handleConfirm"
     />
   </div>
 </template>
