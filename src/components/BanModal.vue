@@ -266,7 +266,7 @@ const submitForm = () => {
             v-model="formData.ip" 
             type="text" 
             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
-            placeholder="x.x.x.x"
+            placeholder="格式为x.x.x.x当不知道时留空，玩家进入时自动获取"
           >
         </div>
         
