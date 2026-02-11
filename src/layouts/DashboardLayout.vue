@@ -23,6 +23,12 @@ const navigation = [
   { name: '白名单管理', href: '/admin/whitelist', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
 ]
 
+const quickLinks = [
+  { name: '白名单申请', href: '/apply', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+  { name: '封禁公示', href: '/bans', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+  { name: '白名单公示', href: '/whitelist-status', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+]
+
 import ChangePasswordModal from '../components/ChangePasswordModal.vue'
 
 const currentRoute = computed(() => route.path)
@@ -68,6 +74,34 @@ const showPasswordModal = ref(false)
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
           </svg>
           <span class="font-medium">{{ item.name }}</span>
+        </router-link>
+      </nav>
+
+      <!-- Quick Links -->
+      <div class="px-6 mt-6 mb-2">
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">快速跳转</h3>
+      </div>
+      <nav class="px-4 space-y-2">
+        <router-link 
+          v-for="item in quickLinks" 
+          :key="item.name"
+          :to="item.href"
+          target="_blank"
+          class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 text-slate-400 hover:bg-slate-800 hover:text-white group"
+        >
+          <svg 
+            class="mr-3 h-4 w-4 text-slate-500 group-hover:text-white transition-colors"
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+          </svg>
+          {{ item.name }}
+          <!-- External Link Icon -->
+          <svg class="ml-auto h-3 w-3 opacity-0 group-hover:opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
         </router-link>
       </nav>
 
