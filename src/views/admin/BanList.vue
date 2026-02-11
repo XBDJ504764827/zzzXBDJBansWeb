@@ -6,9 +6,11 @@ import { useCommunityStore } from '../../composables/useCommunityStore'
 import BanModal from '../../components/BanModal.vue'
 import ConfirmModal from '../../components/ConfirmModal.vue'
 
+import { useToast } from '../../composables/useToast'
 const { bans, addBan, removeBan, updateBan, fetchBans, deleteBanRecord } = useBanStore()
 const { currentUser, isSystemAdmin } = useAuthStore()
 const { serverGroups, fetchServerGroups } = useCommunityStore()
+const toast = useToast()
 
 onMounted(async () => {
     await Promise.all([
@@ -101,7 +103,14 @@ const handleLiftBan = (id) => {
         '解除封禁确认',
         '确定要解除该用户的封禁吗？(将状态设为已解封)',
         'warning',
-        () => removeBan(id)
+        async () => {
+            const success = await removeBan(id)
+            if (success) {
+                toast.success('封禁已解除')
+            } else {
+                toast.error('解除封禁失败')
+            }
+        }
     )
 }
 
@@ -111,14 +120,24 @@ const handleHardDelete = (id) => {
         '彻底删除确认',
         '确定要彻底删除这条封禁记录吗？\n警告：这将同时向所有服务器发送解封指令，且记录不可恢复。',
         'danger',
-        () => deleteBanRecord(id)
+        async () => {
+            const success = await deleteBanRecord(id)
+            if (success) {
+                toast.success('封禁记录已彻底删除')
+            } else {
+                toast.error('删除失败')
+            }
+        }
     )
 }
 
-const handleSubmit = (formData) => {
+const handleSubmit = async (formData) => {
+    let res;
     if (editMode.value) {
         if (currentBan.value && currentBan.value.id) {
-            updateBan(currentBan.value.id, formData)
+            res = await updateBan(currentBan.value.id, formData)
+            if (res) toast.success('封禁信息更新成功')
+            else toast.error('更新失败')
         }
     } else {
         // Inject current admin name
@@ -126,7 +145,9 @@ const handleSubmit = (formData) => {
             ...formData,
             adminName: currentUser.value ? currentUser.value.username : 'Unknown'
         }
-        addBan(banData)
+        res = await addBan(banData)
+        if (res && res.success) toast.success('添加封禁成功')
+        else toast.error(res?.message || '添加失败')
     }
     showModal.value = false
 }

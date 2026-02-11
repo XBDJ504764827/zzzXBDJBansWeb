@@ -1,12 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { useCommunityStore } from '@/composables/useCommunityStore'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps(['modelValue'])
 const emit = defineEmits(['update:modelValue', 'save'])
 
 const store = useCommunityStore()
 const { addServerGroup } = store
+const toast = useToast()
 
 const groupName = ref('')
 
@@ -15,12 +17,18 @@ const closeModal = () => {
   groupName.value = ''
 }
 
-const handleSave = () => {
+const handleSave = async () => {
   if (!groupName.value.trim()) return
   
-  addServerGroup(groupName.value)
-  emit('save')
-  groupName.value = ''
+  const res = await addServerGroup(groupName.value)
+  if (res.success) {
+    toast.success('服务器组创建成功')
+    emit('save')
+    groupName.value = ''
+    closeModal()
+  } else {
+    toast.error(res.message)
+  }
 }
 </script>
 

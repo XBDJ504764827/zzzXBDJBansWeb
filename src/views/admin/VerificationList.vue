@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import { useToast } from '@/composables/useToast'
 
 const verifications = ref([])
 const loading = ref(false)
+const toast = useToast()
 
 // Confirm Modal Logic
 const confirmModal = ref({
@@ -53,10 +55,12 @@ const handleDelete = async (steam_id) => {
         try {
             const res = await api.delete(`/verifications/${steam_id}`)
             if (res.status === 200 || res.status === 204) {
+                toast.success('记录已删除')
                 fetchVerifications()
             }
         } catch (err) {
             console.error(err)
+            toast.error('删除失败')
         }
     }
   )

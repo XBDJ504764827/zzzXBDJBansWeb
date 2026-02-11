@@ -17,7 +17,11 @@ const formData = ref({
   username: '',
   password: '',
   role: 'admin',
-  steamId: ''
+  username: '',
+  password: '',
+  role: 'admin',
+  steamId: '',
+  remark: ''
 })
 
 const errors = ref({
@@ -39,14 +43,16 @@ watch(() => props.show, (newVal) => {
           username: props.initialData.username,
           password: props.initialData.password, // Showing password for mock usually insecure but requested "设定...密码"
           role: props.initialData.role,
-          steamId: props.initialData.steamId
+          steamId: props.initialData.steamId,
+          remark: props.initialData.remark || ''
       }
     } else {
       formData.value = {
         username: '',
         password: '',
         role: 'admin',
-        steamId: ''
+        steamId: '',
+        remark: ''
       }
     }
   }
@@ -71,10 +77,12 @@ const submitForm = () => {
         isValid = false
     }
 
-    if (!formData.value.steamId) {
-        errors.value.steamId = '请输入 SteamID'
+    if (!formData.value.password) {
+        errors.value.password = '请输入密码'
         isValid = false
-    } else if (!validateSteamId(formData.value.steamId)) {
+    }
+
+    if (formData.value.steamId && !validateSteamId(formData.value.steamId)) {
         errors.value.steamId = '格式错误 (如: STEAM_0:0:123456)'
         isValid = false
     }
@@ -140,6 +148,17 @@ const submitForm = () => {
            </select>
            <p class="text-xs text-gray-500 mt-1" v-if="formData.role === 'super_admin'">系统级管理员拥有所有权限。</p>
            <p class="text-xs text-gray-500 mt-1" v-else>普通管理员仅能查看列表。</p>
+        </div>
+
+        <!-- Remark -->
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">备注 (选填)</label>
+          <input 
+            v-model="formData.remark" 
+            type="text" 
+            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            placeholder="管理员备注信息"
+          >
         </div>
 
         <!-- SteamID -->

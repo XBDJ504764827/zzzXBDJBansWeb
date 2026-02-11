@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useCommunityStore } from '@/composables/useCommunityStore'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -12,6 +13,7 @@ const emit = defineEmits(['update:modelValue', 'save'])
 
 const store = useCommunityStore()
 const { addServer, updateServer } = store
+const toast = useToast()
 
 const isEditMode = computed(() => !!props.initialData)
 
@@ -82,10 +84,11 @@ const handleSave = async () => {
   }
   
   if (res.success) {
+      toast.success(isEditMode.value ? '服务器更新成功' : '服务器添加成功')
       emit('save')
       closeModal()
   } else {
-      alert(res.message || '操作失败')
+      toast.error(res.message || '操作失败')
   }
 }
 

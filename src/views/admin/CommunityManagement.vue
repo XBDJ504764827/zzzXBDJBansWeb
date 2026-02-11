@@ -9,8 +9,11 @@ import ConfirmModal from '@/components/ConfirmModal.vue'
 
 import { onMounted } from 'vue'
 
+import { useToast } from '@/composables/useToast'
+
 const store = useCommunityStore()
 const { serverGroups, hasCommunity, removeServerGroup, removeServer, fetchServerGroups } = store
+const toast = useToast()
 
 onMounted(() => {
     fetchServerGroups()
@@ -80,7 +83,14 @@ const handleDeleteServer = async (groupId, serverId) => {
     '删除服务器',
     '确定要删除这个服务器吗？',
     'danger',
-    () => removeServer(groupId, serverId)
+    async () => {
+        const res = await removeServer(groupId, serverId)
+        if (res.success) {
+            toast.success('服务器已删除')
+        } else {
+            toast.error(res.message)
+        }
+    }
   )
 }
 
@@ -89,7 +99,14 @@ const handleDeleteGroup = (groupId) => {
     '删除服务器组',
     '确定要删除这个服务器组吗？组内所有服务器也将被删除。',
     'danger',
-    () => removeServerGroup(groupId)
+    async () => {
+        const res = await removeServerGroup(groupId)
+        if (res.success) {
+            toast.success('服务器组已删除')
+        } else {
+            toast.error(res.message)
+        }
+    }
   )
 }
 </script>

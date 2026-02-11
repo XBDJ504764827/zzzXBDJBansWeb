@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/utils/api'
+import { useToast } from '@/composables/useToast'
+import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const whitelist = ref([])
 const pendingList = ref([])
@@ -12,9 +14,9 @@ const formData = ref({
   steam_id: '',
   name: ''
 })
+const toast = useToast()
 
 // Confirm Modal Logic
-import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const confirmModal = ref({
     show: false,
@@ -67,12 +69,12 @@ const handleAdd = async () => {
     if (res.status === 201) {
       showAddModal.value = false
       formData.value = { steam_id: '', name: '' }
-      alert('添加成功')
+      toast.success('添加成功')
       await fetchWhitelist() // Ensure await to refresh list properly
     }
   } catch (err) {
     console.error(err)
-    alert('添加失败: ' + (err.response?.data?.error || err.message))
+    toast.error('添加失败: ' + (err.response?.data?.error || err.message))
   }
 }
 
@@ -85,10 +87,12 @@ const handleDelete = async (id) => {
         try {
             const res = await api.delete(`/whitelist/${id}`)
             if (res.status === 200) {
+                toast.success('删除成功')
                 fetchWhitelist()
             }
         } catch (err) {
             console.error(err)
+            toast.error('删除失败')
         }
     }
   )
@@ -97,10 +101,11 @@ const handleDelete = async (id) => {
 const handleApprove = async (id) => {
   try {
     await api.put(`/whitelist/${id}/approve`)
+    toast.success('审核通过')
     fetchWhitelist()
   } catch (err) {
     console.error(err)
-    alert('审核失败')
+    toast.error('审核失败')
   }
 }
 
@@ -112,10 +117,11 @@ const handleReject = async (id) => {
     async () => {
         try {
             await api.put(`/whitelist/${id}/reject`)
+            toast.success('已拒绝申请')
             fetchWhitelist()
         } catch (err) {
             console.error(err)
-            alert('操作失败')
+            toast.error('操作失败')
         }
     }
   )

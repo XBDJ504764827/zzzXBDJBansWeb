@@ -3,6 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../composables/useAuthStore'
 import AdminModal from '../../components/AdminModal.vue'
 import ConfirmModal from '../../components/ConfirmModal.vue'
+import { useToast } from '@/composables/useToast'
+
+const toast = useToast()
 
 const { adminList, isSystemAdmin, addAdmin, updateAdmin, deleteAdmin, currentUser, fetchAdmins } = useAuthStore()
 
@@ -60,9 +63,9 @@ const handleDelete = async (id) => {
         async () => {
              const result = await deleteAdmin(id)
             if (!result.success) {
-                alert(result.message || '删除失败')
+                toast.error(result.message || '删除失败')
             } else {
-                alert('删除成功')
+                toast.success('管理员已删除')
             }
         }
     )
@@ -78,9 +81,9 @@ const handleSubmit = async (formData) => {
 
     if (result.success) {
         showModal.value = false
-        alert(editMode.value ? '更新成功' : '添加成功')
+        toast.success(editMode.value ? '管理员信息已更新' : '添加管理员成功')
     } else {
-        alert(result.message || '操作失败')
+        toast.error(result.message || '操作失败')
     }
 }
 
@@ -130,6 +133,7 @@ const getRoleClass = (role) => {
                     <tr class="border-b border-white/5 bg-white/5">
                         <th class="px-6 py-4 font-medium text-gray-300">用户名</th>
                         <th class="px-6 py-4 font-medium text-gray-300">身份</th>
+                        <th class="px-6 py-4 font-medium text-gray-300">备注</th>
                         <th class="px-6 py-4 font-medium text-gray-300">SteamID</th>
                         <th class="px-6 py-4 font-medium text-gray-300">创建时间</th>
                         <th v-if="isSystemAdmin" class="px-6 py-4 font-medium text-gray-300 text-right">操作</th>
@@ -145,7 +149,10 @@ const getRoleClass = (role) => {
                                 {{ getRoleLabel(admin.role) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-gray-400 font-mono">{{ admin.steamId }}</td>
+                        <td class="px-6 py-4 text-gray-400 text-sm">
+                             {{ admin.remark || '-' }}
+                        </td>
+                        <td class="px-6 py-4 text-gray-400 font-mono">{{ admin.steamId || '-' }}</td>
                         <td class="px-6 py-4 text-gray-400">{{ new Date(admin.createTime).toLocaleDateString() }}</td>
                         
                          <!-- Permission Check: Only super_admin can edit/delete, or self can edit -->
