@@ -272,12 +272,16 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import api from '@/utils/api'; 
+
+const route = useRoute();
+const router = useRouter();
 
 const list = ref([]);
 const loading = ref(true);
 const searchQuery = ref('');
-const currentTab = ref('active'); // Default to showing active bans
+const currentTab = ref(route.query.tab || 'active'); // Default to showing active bans
 const currentPage = ref(1);
 const pageSize = 15;
 
@@ -323,6 +327,10 @@ const filteredList = computed(() => {
 
 // --- Pagination ---
 const totalPages = computed(() => Math.ceil(filteredList.value.length / pageSize));
+
+watch(currentTab, (newTab) => {
+    router.replace({ query: { ...route.query, tab: newTab } });
+});
 
 watch([currentTab, searchQuery], () => {
     currentPage.value = 1;

@@ -1,20 +1,109 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import api from '@/utils/api'
 import { useToast } from '@/composables/useToast'
 import ConfirmModal from '../../components/ConfirmModal.vue'
+
+const route = useRoute()
+const router = useRouter()
 
 const whitelist = ref([])
 const pendingList = ref([])
 const rejectedList = ref([])
 const loading = ref(false)
-const activeTab = ref('approved') // 'approved', 'pending', 'rejected'
+
+// Initialize from URL query or default to 'approved'
+const activeTab = ref(route.query.tab || 'approved') 
+
+// Watch for changes and update URL
+watch(activeTab, (newTab) => {
+    router.replace({ query: { ...route.query, tab: newTab } })
+})
 const showAddModal = ref(false)
 const formData = ref({
   steam_id: '',
   name: ''
 })
 const toast = useToast()
+
+// Rejection Modal Logic
+const showRejectModal = ref(false)
+const rejectReason = ref('')
+const rejectTargetId = ref(null)
+
+const openRejectModal = (id) => {
+    rejectTargetId.value = id
+    rejectReason.value = ''
+    showRejectModal.value = true
+}
+
+const confirmReject = async () => {
+    if (!rejectReason.value.trim()) {
+        toast.error('请填写拒绝理由')
+        return
+    }
+    
+    try {
+        await api.put(`/whitelist/${rejectTargetId.value}/reject`, {
+            reason: rejectReason.value
+        })
+        toast.success('已拒绝申请')
+        showRejectModal.value = false
+        fetchWhitelist()
+    } catch (err) {
+        console.error(err)
+        toast.error('操作失败')
+    }
+}
+
+// Ban Check Logic
+const banCache = ref({}) // key: steam_id_64, value: ban data object or null
+
+const checkGlobalBans = async (list) => {
+    const steamIdsToCheck = list
+        .map(item => item.steam_id_64 || item.steam_id)
+        .filter(id => id && banCache.value[id] === undefined);
+
+    if (steamIdsToCheck.length === 0) return;
+
+    try {
+        const response = await api.post('/check_global_ban/bulk', {
+            steam_ids: steamIdsToCheck
+        });
+
+        if (response.data) {
+            const resultMap = response.data;
+            for (const [steamId, banData] of Object.entries(resultMap)) {
+                // GOKZ API returns { data: [...], count: ... } for individual bans
+                // Our bulk endpoint returns { "steamid": { data: ..., count: ... } or null }
+                if (banData) {
+                     const bans = Array.isArray(banData) ? banData : (banData.data || []);
+                     if (bans && bans.length > 0) {
+                        banCache.value[steamId] = bans;
+                     } else {
+                        banCache.value[steamId] = null;
+                     }
+                } else {
+                    banCache.value[steamId] = null;
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Failed to bulk check bans', e);
+        // On error, set all to null to prevent retry loops
+         for (const id of steamIdsToCheck) {
+             banCache.value[id] = null;
+         }
+    }
+}
+
+// Collapse Logic
+const expandedBans = ref({}) // key: steamId, value: boolean
+
+const toggleBanDetails = (key) => {
+    expandedBans.value[key] = !expandedBans.value[key]
+}
 
 // Confirm Modal Logic
 
@@ -54,6 +143,10 @@ const fetchWhitelist = async () => {
     whitelist.value = approvedRes.data
     pendingList.value = pendingRes.data
     rejectedList.value = rejectedRes.data
+    
+    // Check bans for pending list
+    checkGlobalBans(pendingList.value)
+    
   } catch (err) {
     console.error(err)
   } finally {
@@ -109,22 +202,8 @@ const handleApprove = async (id) => {
   }
 }
 
-const handleReject = async (id) => {
-  openConfirmModal(
-    '拒绝确认',
-    '确定要拒绝此进服申请吗？',
-    'warning',
-    async () => {
-        try {
-            await api.put(`/whitelist/${id}/reject`)
-            toast.success('已拒绝申请')
-            fetchWhitelist()
-        } catch (err) {
-            console.error(err)
-            toast.error('操作失败')
-        }
-    }
-  )
+const handleReject = (id) => {
+    openRejectModal(id)
 }
 
 onMounted(fetchWhitelist)
@@ -148,6 +227,14 @@ const getPlayerSteamId = (player) => {
   if (!player) return null
   // 优先使用 steam_id_64，如果没有则尝试使用 steam_id
   return player.steam_id_64 || player.steam_id
+}
+
+const getPlayerSteamProfile = (player) => {
+    const id = getPlayerSteamId(player)
+    if (!id) return null
+    // Simple heuristic: if it looks like ID64 (starts with 7 and long), use profiles, otherwise might be custom URL or ID3?
+    // Usually steam_id_64 is reliable.
+    return `https://steamcommunity.com/profiles/${id}`
 }
 </script>
 
@@ -218,15 +305,16 @@ const getPlayerSteamId = (player) => {
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID3</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">添加时间</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">处理人</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
-                <td colspan="7" class="p-4 text-center text-slate-500">Loading...</td>
+                <td colspan="8" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
             <tr v-else-if="whitelist.length === 0">
-                <td colspan="7" class="p-4 text-center text-slate-500">暂无数据</td>
+                <td colspan="8" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
             <tr v-for="item in whitelist" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
@@ -237,6 +325,7 @@ const getPlayerSteamId = (player) => {
               <td class="p-4 text-slate-400 text-sm">
                 {{ new Date(item.created_at).toLocaleString() }}
               </td>
+              <td class="p-4 text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
               <td class="p-4 text-right">
                 <button 
                   @click="handleDelete(item.id)"
@@ -274,36 +363,118 @@ const getPlayerSteamId = (player) => {
             <tr v-else-if="pendingList.length === 0">
                 <td colspan="5" class="p-4 text-center text-slate-500">暂无待审核申请</td>
             </tr>
-            <tr v-for="item in pendingList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
-              <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 text-slate-300">{{ item.name }}</td>
-              <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
-              <td class="p-4 text-slate-400 text-sm">
-                {{ new Date(item.created_at).toLocaleString() }}
-              </td>
-              <td class="p-4 text-right flex items-center justify-end gap-2">
-                <button 
-                  @click="handleApprove(item.id)"
-                  class="text-green-400 hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1"
-                  title="通过"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  通过
-                </button>
-                <button 
-                  @click="handleReject(item.id)"
-                  class="text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 hover:bg-red-400/10 rounded-lg text-sm flex items-center gap-1"
-                  title="拒绝"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                  拒绝
-                </button>
-              </td>
-            </tr>
+            <template v-for="item in pendingList" :key="item.id">
+                <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+                <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
+                <td class="p-4 text-slate-300">
+                    {{ item.name }}
+                    <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                            封禁记录
+                        </span>
+                    </div>
+                </td>
+                <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
+                <td class="p-4 text-slate-400 text-sm">
+                    {{ new Date(item.created_at).toLocaleString() }}
+                </td>
+                <td class="p-4 text-right flex items-center justify-end gap-2">
+                    <button 
+                    @click="handleApprove(item.id)"
+                    class="text-green-400 hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1"
+                    title="通过"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    通过
+                    </button>
+                    <button 
+                    @click="handleReject(item.id)"
+                    class="text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 hover:bg-red-400/10 rounded-lg text-sm flex items-center gap-1"
+                    title="拒绝"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    拒绝
+                    </button>
+                </td>
+                </tr>
+                <!-- Ban Info Row -->
+                <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+                    <td colspan="5" class="p-4">
+                        <div class="space-y-3">
+                            <div 
+                                class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                                @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
+                            >
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    class="h-4 w-4 transition-transform duration-200" 
+                                    :class="{ 'rotate-90': expandedBans[item.steam_id_64 || item.steam_id] }"
+                                    viewBox="0 0 20 20" 
+                                    fill="currentColor"
+                                >
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                               检测到 GOKZ 全局封禁记录 ({{ banCache[item.steam_id_64 || item.steam_id].length }}) - 点击展开详情
+                            </div>
+                            
+                            <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
+                                <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="space-y-2 w-full">
+                                            <!-- Ban Type -->
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                                    {{ ban.ban_type }}
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Server Name -->
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                                <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                            </div>
+
+                                            <!-- Created Time -->
+                                            <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                                <span class="w-20 text-right shrink-0">封禁时间:</span>
+                                                <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
+                                            </div>
+
+                                            <!-- Expires Time -->
+                                            <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                                <span class="w-20 text-right shrink-0">过期时间:</span>
+                                                <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                                    {{ new Date(ban.expires_on).toLocaleString() }}
+                                                </span>
+                                                <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                            </div>
+
+                                            <!-- Stats -->
+                                            <div v-if="ban.stats" class="flex items-start gap-2">
+                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                                <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                                    {{ ban.stats }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Notes -->
+                                            <div v-if="ban.notes" class="flex items-start gap-2">
+                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                                <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -318,24 +489,32 @@ const getPlayerSteamId = (player) => {
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">ID</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">玩家昵称</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">拒绝理由</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase">申请时间</th>
+              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">处理人</th>
               <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
-                <td colspan="5" class="p-4 text-center text-slate-500">Loading...</td>
+                <td colspan="7" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
             <tr v-else-if="rejectedList.length === 0">
-                <td colspan="5" class="p-4 text-center text-slate-500">暂无已拒绝申请</td>
+                <td colspan="7" class="p-4 text-center text-slate-500">暂无已拒绝申请</td>
             </tr>
             <tr v-for="item in rejectedList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 text-slate-300">{{ item.name }}</td>
+              <td class="p-4 text-slate-300">
+                  {{ item.name }}
+              </td>
               <td class="p-4 font-mono text-sm text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
+              <td class="p-4 text-sm text-red-300 max-w-xs truncate" :title="item.reject_reason">
+                  {{ item.reject_reason || '-' }}
+              </td>
               <td class="p-4 text-slate-400 text-sm">
                 {{ new Date(item.created_at).toLocaleString() }}
               </td>
+              <td class="p-4 text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
               <td class="p-4 text-right">
                 <button 
                   @click="handleApprove(item.id)"
@@ -401,6 +580,40 @@ const getPlayerSteamId = (player) => {
       </div>
     </div>
 
+    <!-- Reject Reason Modal -->
+    <div v-if="showRejectModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showRejectModal = false"></div>
+        <div class="relative bg-slate-900 rounded-xl border border-slate-800 p-6 w-full max-w-md shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-4">拒绝申请</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">拒绝理由 <span class="text-red-500">*</span></label>
+                    <textarea 
+                        v-model="rejectReason"
+                        rows="3"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        placeholder="请输入拒绝理由..."
+                    ></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 mt-6">
+                    <button 
+                        @click="showRejectModal = false"
+                        class="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                    >
+                        取消
+                    </button>
+                    <button 
+                        @click="confirmReject"
+                        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                        确认拒绝
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Context Menu -->
     <div v-if="showContextMenu" class="fixed inset-0 z-[100]" @click="closeContextMenu" @contextmenu.prevent="closeContextMenu">
       <div 
@@ -432,12 +645,23 @@ const getPlayerSteamId = (player) => {
           </svg>
           GOKZ.EU 主页
         </a>
+        <a 
+          v-if="getPlayerSteamProfile(selectedPlayer)"
+          :href="getPlayerSteamProfile(selectedPlayer)"
+          target="_blank"
+          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          @click="closeContextMenu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          Steam 主页
+        </a>
         <div v-else class="px-4 py-2 text-sm text-slate-500 italic">
           无效的 SteamID
         </div>
       </div>
     </div>
-
     
     <ConfirmModal 
         :show="confirmModal.show"

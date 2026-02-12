@@ -106,7 +106,8 @@
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">交互状态</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">信息</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">SteamID (64)</th>
-                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Other IDs</th>
+                                    <th v-if="currentTab === 'rejected' || currentTab === 'all'" scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">拒绝理由</th>
+                                    <th v-if="currentTab !== 'pending'" scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">处理人</th>
                                     <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">申请时间</th>
                                 </tr>
                             </thead>
@@ -134,17 +135,14 @@
                                             </svg>
                                         </button>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex flex-col gap-1">
-                                            <div v-if="item.steam_id" class="flex items-center gap-2">
-                                                 <span class="text-[10px] text-slate-500 uppercase tracking-wider w-8">ID2</span>
-                                                 <span class="font-mono text-xs text-slate-400 select-all">{{ item.steam_id }}</span>
-                                            </div>
-                                            <div v-if="item.steam_id_3" class="flex items-center gap-2">
-                                                 <span class="text-[10px] text-slate-500 uppercase tracking-wider w-8">ID3</span>
-                                                 <span class="font-mono text-xs text-slate-400 select-all">{{ item.steam_id_3 }}</span>
-                                            </div>
-                                        </div>
+                                    <td v-if="currentTab === 'rejected' || currentTab === 'all'" class="px-6 py-4">
+                                        <span v-if="item.status === 'rejected'" class="text-sm text-rose-400 max-w-xs truncate block" :title="item.reject_reason">
+                                            {{ item.reject_reason || '-' }}
+                                        </span>
+                                        <span v-else class="text-slate-600">-</span>
+                                    </td>
+                                    <td v-if="currentTab !== 'pending'" class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm text-slate-400">{{ item.admin_name || '-' }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <div class="text-sm text-slate-400">{{ formatDate(item.created_at) }}</div>
@@ -176,7 +174,7 @@
                             </span>
                         </div>
                         
-                        <!-- IDs Grid -->
+                             <!-- IDs Grid -->
                         <div class="pl-3 space-y-2">
                             <!-- ID64 (Primary) -->
                             <div class="bg-slate-950/50 rounded-lg p-2 border border-slate-800 flex justify-between items-center group/id">
@@ -191,17 +189,18 @@
                                 </button>
                             </div>
 
-                            <!-- Additional IDs -->
-                             <div class="grid grid-cols-2 gap-2">
-                                <div class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50">
-                                    <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">ID2</span>
-                                    <span class="font-mono text-[10px] text-slate-400 break-all select-all">{{ item.steam_id || '-' }}</span>
+                            <!-- Additional Info -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div v-if="item.status === 'rejected'" class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50 col-span-2">
+                                    <span class="block text-[10px] text-rose-500/70 uppercase tracking-wider mb-0.5">拒绝理由</span>
+                                    <span class="text-xs text-rose-400">{{ item.reject_reason || '-' }}</span>
                                 </div>
-                                 <div class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50">
-                                    <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">ID3</span>
-                                    <span class="font-mono text-[10px] text-slate-400 break-all select-all">{{ item.steam_id_3 || '-' }}</span>
+                                
+                                <div v-if="item.admin_name" class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50">
+                                    <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">处理人</span>
+                                    <span class="text-xs text-slate-300">{{ item.admin_name }}</span>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -252,12 +251,16 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import api from '@/utils/api'; // Use configured API instance
+
+const route = useRoute();
+const router = useRouter();
 
 const list = ref([]);
 const loading = ref(true);
 const searchQuery = ref('');
-const currentTab = ref('all');
+const currentTab = ref(route.query.tab || 'all');
 const currentPage = ref(1);
 const pageSize = 15;
 
@@ -320,6 +323,10 @@ const filteredList = computed(() => {
 
 // --- Pagination ---
 const totalPages = computed(() => Math.ceil(filteredList.value.length / pageSize));
+
+watch(currentTab, (newTab) => {
+    router.replace({ query: { ...route.query, tab: newTab } });
+});
 
 // Reset page on filter change
 watch([currentTab, searchQuery], () => {
