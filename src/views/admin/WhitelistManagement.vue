@@ -144,8 +144,10 @@ const fetchWhitelist = async () => {
     pendingList.value = pendingRes.data
     rejectedList.value = rejectedRes.data
     
-    // Check bans for pending list
+    // Check bans for all lists to show warnings everywhere
     checkGlobalBans(pendingList.value)
+    checkGlobalBans(whitelist.value)
+    checkGlobalBans(rejectedList.value)
     
   } catch (err) {
     console.error(err)
@@ -162,6 +164,7 @@ const handleAdd = async () => {
     if (res.status === 201) {
       showAddModal.value = false
       formData.value = { steam_id: '', name: '' }
+      lookupResult.value = null
       toast.success('添加成功')
       await fetchWhitelist() // Ensure await to refresh list properly
     }
@@ -235,6 +238,39 @@ const getPlayerSteamProfile = (player) => {
     // Simple heuristic: if it looks like ID64 (starts with 7 and long), use profiles, otherwise might be custom URL or ID3?
     // Usually steam_id_64 is reliable.
     return `https://steamcommunity.com/profiles/${id}`
+}
+
+// Player Lookup Logic
+const lookupLoading = ref(false)
+const lookupResult = ref(null)
+
+const handleLookup = async () => {
+    if (!formData.value.steam_id.trim()) return
+    
+    lookupLoading.value = true
+    lookupResult.value = null
+    
+    try {
+        const res = await api.get('/whitelist/player-info', {
+            params: { steam_id: formData.value.steam_id }
+        })
+        
+        if (res.data) {
+            lookupResult.value = res.data
+            // Auto fill name if empty or if user hasn't typed anything custom yet
+            // actually just overwrite is usually better for "lookup", but generic behavior:
+            formData.value.name = res.data.personaname || ''
+            // Update steam_id to 64 if resolved (optional, but good for consistency)
+            if (res.data.steamid) {
+                formData.value.steam_id = res.data.steamid
+            }
+        }
+    } catch (err) {
+        console.error(err)
+        toast.error('未找到玩家或 ID 无效')
+    } finally {
+        lookupLoading.value = false
+    }
 }
 </script>
 
@@ -316,9 +352,17 @@ const getPlayerSteamProfile = (player) => {
             <tr v-else-if="whitelist.length === 0">
                 <td colspan="8" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
-            <tr v-for="item in whitelist" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+            <template v-for="item in whitelist" :key="item.id">
+            <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 text-slate-300">{{ item.name }}</td>
+              <td class="p-4 text-slate-300">
+                  {{ item.name }}
+                  <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                          Global封禁记录
+                      </span>
+                  </div>
+              </td>
               <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id || '-' }}</td>
               <td class="p-4 font-mono text-sm text-green-400">{{ item.steam_id_3 || '-' }}</td>
               <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || '-' }}</td>
@@ -338,6 +382,69 @@ const getPlayerSteamProfile = (player) => {
                 </button>
               </td>
             </tr>
+            <!-- Ban Info Row for Approved -->
+            <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+                <td colspan="8" class="p-4">
+                    <div class="space-y-3">
+                        <div 
+                            class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                            @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
+                        >
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                class="h-4 w-4 transition-transform duration-200" 
+                                :class="{ 'rotate-90': expandedBans[item.steam_id_64 || item.steam_id] }"
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                            >
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                           检测到 GOKZ 全局封禁记录 ({{ banCache[item.steam_id_64 || item.steam_id].length }}) - 点击展开详情
+                        </div>
+                        
+                        <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
+                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="space-y-2 w-full">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                                {{ ban.ban_type }}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                            <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <span class="w-20 text-right shrink-0">封禁时间:</span>
+                                            <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <span class="w-20 text-right shrink-0">过期时间:</span>
+                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                                {{ new Date(ban.expires_on).toLocaleString() }}
+                                            </span>
+                                            <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                        </div>
+                                        <div v-if="ban.stats" class="flex items-start gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                            <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                                {{ ban.stats }}
+                                            </div>
+                                        </div>
+                                        <div v-if="ban.notes" class="flex items-start gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                            <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -370,7 +477,7 @@ const getPlayerSteamProfile = (player) => {
                     {{ item.name }}
                     <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
-                            封禁记录
+                            Global封禁记录
                         </span>
                     </div>
                 </td>
@@ -502,10 +609,16 @@ const getPlayerSteamProfile = (player) => {
             <tr v-else-if="rejectedList.length === 0">
                 <td colspan="7" class="p-4 text-center text-slate-500">暂无已拒绝申请</td>
             </tr>
-            <tr v-for="item in rejectedList" :key="item.id" class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+            <template v-for="item in rejectedList" :key="item.id">
+            <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-300">
                   {{ item.name }}
+                  <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                          Global封禁记录
+                      </span>
+                  </div>
               </td>
               <td class="p-4 font-mono text-sm text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
               <td class="p-4 text-sm text-red-300 max-w-xs truncate" :title="item.reject_reason">
@@ -528,6 +641,69 @@ const getPlayerSteamProfile = (player) => {
                 </button>
               </td>
             </tr>
+            <!-- Ban Info Row for Rejected -->
+             <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+                <td colspan="7" class="p-4">
+                    <div class="space-y-3">
+                        <div 
+                            class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                            @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
+                        >
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                class="h-4 w-4 transition-transform duration-200" 
+                                :class="{ 'rotate-90': expandedBans[item.steam_id_64 || item.steam_id] }"
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                            >
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                           检测到 GOKZ 全局封禁记录 ({{ banCache[item.steam_id_64 || item.steam_id].length }}) - 点击展开详情
+                        </div>
+                        
+                        <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
+                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="space-y-2 w-full">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                                {{ ban.ban_type }}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                            <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <span class="w-20 text-right shrink-0">封禁时间:</span>
+                                            <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <span class="w-20 text-right shrink-0">过期时间:</span>
+                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                                {{ new Date(ban.expires_on).toLocaleString() }}
+                                            </span>
+                                            <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                        </div>
+                                        <div v-if="ban.stats" class="flex items-start gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                            <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                                {{ ban.stats }}
+                                            </div>
+                                        </div>
+                                         <div v-if="ban.notes" class="flex items-start gap-2">
+                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                            <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -541,15 +717,49 @@ const getPlayerSteamProfile = (player) => {
         
         <form @submit.prevent="handleAdd" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">Steam ID</label>
-            <input 
-              v-model="formData.steam_id"
-              type="text" 
-              required
-              placeholder="e.g. 76561198000000000"
-              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            >
+            <label class="block text-sm font-medium text-slate-400 mb-1">Steam ID / Profile URL</label>
+            <div class="flex gap-2">
+                <input 
+                  v-model="formData.steam_id"
+                  type="text" 
+                  required
+                  placeholder="e.g. 76561198000000000 or Profile URL"
+                  class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  @keydown.enter.prevent="handleLookup"
+                >
+                <button 
+                    type="button"
+                    @click="handleLookup"
+                    :disabled="lookupLoading"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-colors border border-slate-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                    <svg v-if="lookupLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    查询
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">支持 SteamID64, SteamID2, SteamID3 或 个人资料链接</p>
           </div>
+
+           <!-- Lookup Result -->
+          <div v-if="lookupResult" class="bg-slate-950/50 rounded-lg p-3 border border-slate-800 flex items-start gap-4">
+               <img :src="lookupResult.avatarfull" alt="Avatar" class="w-12 h-12 rounded-lg border border-slate-700 shadow-sm">
+               <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">{{ lookupResult.personaname }}</p>
+                    <p class="text-xs font-mono text-slate-400 truncate">{{ lookupResult.steamid }}</p>
+                    
+                    <a :href="lookupResult.profileurl" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 mt-0.5 inline-flex items-center gap-1">
+                        Steam Profile
+                        <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" /></svg>
+                    </a>
+               </div>
+               <div class="flex flex-col items-end">
+                    <span class="text-xs text-green-400 bg-green-900/20 px-2 py-0.5 rounded border border-green-900/30">已获取信息</span>
+               </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-slate-400 mb-1">玩家昵称</label>
             <input 
