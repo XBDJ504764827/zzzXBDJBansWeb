@@ -89,6 +89,10 @@ export const useAuthStore = () => {
                 payload.steam_id = updatedData.steamId
                 delete payload.steamId
             }
+            // Remove empty password to prevent overwriting with empty string
+            if (!payload.password) {
+                delete payload.password
+            }
             // Ensure empty strings are treated as null if backend expects optional? 
             // Current backend is Option<String>.
 

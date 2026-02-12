@@ -41,7 +41,7 @@ watch(() => props.show, (newVal) => {
     if (props.editMode && props.initialData) {
       formData.value = { 
           username: props.initialData.username,
-          password: props.initialData.password, // Showing password for mock usually insecure but requested "设定...密码"
+          password: '', // Leave empty for edit
           role: props.initialData.role,
           steamId: props.initialData.steamId,
           remark: props.initialData.remark || ''
@@ -72,15 +72,12 @@ const submitForm = () => {
         isValid = false
     }
 
-    if (!formData.value.password) {
+    if (!props.editMode && !formData.value.password) {
         errors.value.password = '请输入密码'
         isValid = false
     }
 
-    if (!formData.value.password) {
-        errors.value.password = '请输入密码'
-        isValid = false
-    }
+
 
     if (formData.value.steamId && !validateSteamId(formData.value.steamId)) {
         errors.value.steamId = '格式错误 (如: STEAM_0:0:123456)'
@@ -129,7 +126,7 @@ const submitForm = () => {
             type="text" 
             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
             :class="{'border-red-500': errors.password}"
-            placeholder="登录密码"
+            placeholder="登录密码 (留空则不修改)"
           >
           <p v-if="errors.password" class="text-xs text-red-500 mt-1">{{ errors.password }}</p>
         </div>
