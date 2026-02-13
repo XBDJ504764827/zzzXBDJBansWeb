@@ -52,7 +52,8 @@ const router = createRouter({
                 {
                     path: 'logs',
                     name: 'logs',
-                    component: () => import('../views/admin/AuditLog.vue')
+                    component: () => import('../views/admin/AuditLog.vue'),
+                    meta: { requiresSuperAdmin: true }
                 },
                 {
                     path: 'whitelist',
@@ -62,7 +63,8 @@ const router = createRouter({
                 {
                     path: 'verifications',
                     name: 'verifications',
-                    component: () => import('../views/admin/VerificationList.vue')
+                    component: () => import('../views/admin/VerificationList.vue'),
+                    meta: { requiresSuperAdmin: true }
                 },
             ]
         },
@@ -75,13 +77,22 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
+    const user = userStr ? JSON.parse(userStr) : null
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    const requiresSuperAdmin = to.matched.some(record => record.meta.requiresSuperAdmin)
 
     // 1. Protected Route Check
     if (requiresAuth && !token) {
         next('/')
     }
-    // 2. Login Page Check (Redirect if already logged in)
+    // 2. Super Admin Check
+    else if (requiresSuperAdmin && user && user.role !== 'super_admin') {
+        // Redirect to default admin dashboard or show a toast/notification (not implemented here)
+        // Best to redirect to a safe admin page
+        next('/admin/community')
+    }
+    // 3. Login Page Check (Redirect if already logged in)
     else if (to.path === '/' && token) {
         next('/admin')
     }

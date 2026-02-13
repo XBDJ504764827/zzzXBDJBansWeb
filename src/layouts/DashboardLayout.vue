@@ -18,8 +18,8 @@ const navigation = [
   { name: '社区组管理', href: '/admin/community', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
   { name: '封禁管理', href: '/admin/bans', icon: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636' },
   { name: '管理员管理', href: '/admin/admins', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: '操作日志', href: '/admin/logs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-  { name: '进服列表', href: '/admin/verifications', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { name: '操作日志', href: '/admin/logs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', requiresSuperAdmin: true },
+  { name: '进服列表', href: '/admin/verifications', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', requiresSuperAdmin: true },
   { name: '白名单管理', href: '/admin/whitelist', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
 ]
 
@@ -53,28 +53,29 @@ const showPasswordModal = ref(false)
 
       <!-- Nav -->
       <nav class="p-4 space-y-2 mt-4">
-        <router-link 
-          v-for="item in navigation" 
-          :key="item.name"
-          :to="item.href"
-          class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 group"
-          :class="[
-            currentRoute.startsWith(item.href) 
-              ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' 
-              : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-          ]"
-        >
-          <svg 
-            class="mr-3 h-5 w-5 transition-colors group-hover:text-blue-400"
-            :class="currentRoute.startsWith(item.href) ? 'text-blue-400' : 'text-slate-500'"
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
+        <template v-for="item in navigation" :key="item.name">
+          <router-link 
+            v-if="!item.requiresSuperAdmin || isSystemAdmin"
+            :to="item.href"
+            class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 group"
+            :class="[
+              currentRoute.startsWith(item.href) 
+                ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' 
+                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+            ]"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
-          </svg>
-          <span class="font-medium">{{ item.name }}</span>
-        </router-link>
+            <svg 
+              class="mr-3 h-5 w-5 transition-colors group-hover:text-blue-400"
+              :class="currentRoute.startsWith(item.href) ? 'text-blue-400' : 'text-slate-500'"
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+            </svg>
+            <span class="font-medium">{{ item.name }}</span>
+          </router-link>
+        </template>
       </nav>
 
       <!-- Quick Links -->
