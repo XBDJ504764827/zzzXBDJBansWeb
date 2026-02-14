@@ -92,12 +92,12 @@ const submitForm = () => {
 
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="w-full max-w-md bg-[#1a1d24] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-[#1e222b]">
-        <h3 class="text-lg font-semibold text-white">
+    <div class="w-full max-w-md bg-white dark:bg-[#1a1d24] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden transition-colors">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-white/5 flex justify-between items-center bg-gray-50 dark:bg-[#1e222b] transition-colors">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
           {{ editMode ? '编辑管理员' : '新增管理员' }}
         </h3>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-white transition-colors">
+        <button @click="$emit('close')" class="text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -111,7 +111,7 @@ const submitForm = () => {
           <input 
             v-model="formData.username" 
             type="text" 
-             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+             class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-300 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
              :class="{'border-red-500': errors.username}"
             placeholder="登录账号"
           >
@@ -124,7 +124,7 @@ const submitForm = () => {
           <input 
             v-model="formData.password" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-300 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             :class="{'border-red-500': errors.password}"
             placeholder="登录密码 (留空则不修改)"
           >
@@ -137,7 +137,7 @@ const submitForm = () => {
            <select 
              v-model="formData.role"
              :disabled="disableRole"
-             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+             class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-300 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
            >
              <option v-for="opt in roleOptions" :key="opt.value" :value="opt.value">
                {{ opt.label }}
@@ -153,7 +153,7 @@ const submitForm = () => {
           <input 
             v-model="formData.remark" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-300 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             placeholder="管理员备注信息"
           >
         </div>
@@ -164,7 +164,7 @@ const submitForm = () => {
           <input 
             v-model="formData.steamId" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-300 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             :class="{'border-red-500': errors.steamId}"
             placeholder="绑定 SteamID"
           >
@@ -172,10 +172,10 @@ const submitForm = () => {
         </div>
       </div>
 
-      <div class="px-6 py-4 border-t border-white/5 bg-[#1e222b] flex justify-end gap-3">
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#1e222b] flex justify-end gap-3 transition-colors">
         <button 
           @click="$emit('close')" 
-          class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+          class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-colors"
         >
           取消
         </button>

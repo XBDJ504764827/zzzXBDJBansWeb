@@ -62,19 +62,19 @@ const confirmButtonClass = computed(() => {
     <div class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
 
     <!-- Modal Panel -->
-    <div class="relative bg-[#1a1d24] rounded-xl border border-white/10 shadow-2xl w-full max-w-md transform transition-all scale-100 overflow-hidden flex flex-col">
+    <div class="relative bg-white dark:bg-[#1a1d24] rounded-xl border border-gray-200 dark:border-white/10 shadow-2xl w-full max-w-md transform transition-all scale-100 overflow-hidden flex flex-col">
       <div class="p-6">
         <div class="flex items-start gap-4">
           <!-- Icon -->
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center" v-html="icon"></div>
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center" v-html="icon"></div>
           
           <!-- Content -->
           <div class="flex-1">
-            <h3 class="text-lg font-medium text-white leading-6">
+            <h3 class="text-lg font-medium text-slate-900 dark:text-white leading-6">
               {{ title }}
             </h3>
             <div class="mt-2">
-              <p class="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed">
+              <p class="text-sm text-slate-500 dark:text-gray-400 whitespace-pre-wrap leading-relaxed">
                 {{ content }}
               </p>
             </div>
@@ -83,7 +83,7 @@ const confirmButtonClass = computed(() => {
       </div>
 
       <!-- Actions -->
-      <div class="bg-black/20 px-6 py-4 flex flex-row-reverse gap-3">
+      <div class="bg-gray-50 dark:bg-black/20 px-6 py-4 flex flex-row-reverse gap-3">
         <button 
           type="button" 
           class="inline-flex justify-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors"
@@ -94,7 +94,7 @@ const confirmButtonClass = computed(() => {
         </button>
         <button 
           type="button"
-          class="inline-flex justify-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors"
+          class="inline-flex justify-center rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors"
           @click="$emit('close')"
         >
           {{ cancelText }}

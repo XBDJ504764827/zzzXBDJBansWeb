@@ -2,10 +2,12 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../composables/useAuthStore'
+import { useTheme } from '../composables/useTheme'
 
 const router = useRouter()
 const route = useRoute()
 const { currentUser, isSystemAdmin, logout } = useAuthStore()
+const { isDark, toggleTheme } = useTheme()
 
 const handleLogout = async () => {
   await logout()
@@ -36,17 +38,17 @@ const showPasswordModal = ref(false)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 flex font-sans text-slate-200">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-200 transition-colors duration-300">
     <!-- Change Password Modal -->
     <ChangePasswordModal :isOpen="showPasswordModal" @close="showPasswordModal = false" />
     <!-- Sidebar -->
     <aside 
-      class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 transition-transform duration-300 ease-in-out transform lg:translate-x-0 lg:static lg:inset-0"
+      class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 transition-all duration-300 ease-in-out transform lg:translate-x-0 lg:static lg:inset-0"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <!-- Logo -->
-      <div class="h-16 flex items-center justify-center border-b border-slate-800 bg-slate-900/50">
-        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+      <div class="h-16 flex items-center justify-center border-b border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
+        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">
           zzzXBDJBans
         </h1>
       </div>
@@ -60,13 +62,13 @@ const showPasswordModal = ref(false)
             class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 group"
             :class="[
               currentRoute.startsWith(item.href) 
-                ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20' 
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                ? 'bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-600/20' 
+                : 'text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
             <svg 
-              class="mr-3 h-5 w-5 transition-colors group-hover:text-blue-400"
-              :class="currentRoute.startsWith(item.href) ? 'text-blue-400' : 'text-slate-500'"
+              class="mr-3 h-5 w-5 transition-colors group-hover:text-blue-500 dark:group-hover:text-blue-400"
+              :class="currentRoute.startsWith(item.href) ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'"
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"
@@ -88,7 +90,7 @@ const showPasswordModal = ref(false)
           :key="item.name"
           :to="item.href"
           target="_blank"
-          class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 text-slate-400 hover:bg-slate-800 hover:text-white group"
+          class="flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-200 text-slate-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white group"
         >
           <svg 
             class="mr-3 h-4 w-4 text-slate-500 group-hover:text-white transition-colors"
@@ -107,21 +109,21 @@ const showPasswordModal = ref(false)
       </nav>
 
       <!-- User Info Footer -->
-      <div class="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-slate-900/50">
+      <div class="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50">
         <div class="flex items-center justify-between gap-3" v-if="currentUser">
           <div class="flex items-center gap-3 overflow-hidden">
-             <div class="h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white"
+             <div class="h-8 w-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white shadow-sm"
                   :class="isSystemAdmin ? 'bg-purple-600' : 'bg-blue-600'">
                {{ currentUser.username.substring(0, 2).toUpperCase() }}
              </div>
              <div class="min-w-0">
-               <p class="text-sm font-medium text-white truncate">{{ currentUser.username }}</p>
+               <p class="text-sm font-medium text-slate-700 dark:text-white truncate">{{ currentUser.username }}</p>
                <p class="text-xs text-slate-500 truncate">{{ isSystemAdmin ? 'System Admin' : 'Admin' }}</p>
              </div>
           </div>
           <button 
             @click="showPasswordModal = true"
-            class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+            class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
             title="修改密码"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -130,7 +132,7 @@ const showPasswordModal = ref(false)
           </button>
           <button 
             @click="handleLogout"
-            class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+            class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
             title="退出登录"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -147,18 +149,34 @@ const showPasswordModal = ref(false)
     <!-- Main Content -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <!-- Top Header (Mobile Toggle & Breadcrumbs/Titles) -->
-      <header class="h-16 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-6 backdrop-blur-sm lg:hidden">
-        <button @click="sidebarOpen = !sidebarOpen" class="text-slate-400 hover:text-white">
+      <header class="h-16 bg-white/50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-6 backdrop-blur-sm lg:hidden">
+        <button @click="sidebarOpen = !sidebarOpen" class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <span class="text-lg font-bold text-white">Dashboard</span>
+        <span class="text-lg font-bold text-slate-800 dark:text-white">Dashboard</span>
         <div class="w-6"></div> <!-- Spacer for center alignment visuals -->
       </header>
 
       <!-- Content -->
-      <main class="flex-1 overflow-y-auto bg-slate-950 p-6 lg:p-8">
+      <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-950 p-6 lg:p-8 relative">
+        <!-- Theme Toggle (Floating) -->
+        <div class="absolute top-6 right-6 z-10">
+          <button 
+            @click="toggleTheme" 
+            class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors shadow-sm"
+            :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          >
+            <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+
         <div class="max-w-7xl mx-auto">
           <router-view v-slot="{ Component }">
             <transition 

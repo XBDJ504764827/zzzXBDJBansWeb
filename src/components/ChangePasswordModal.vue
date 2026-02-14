@@ -51,26 +51,26 @@ const handleSubmit = async () => {
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="$emit('close')"></div>
-    <div class="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6">
-      <h3 class="text-xl font-bold text-white mb-6">修改密码</h3>
+    <div class="relative bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6 transition-colors">
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">修改密码</h3>
       
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div>
-           <label class="block text-sm font-medium text-slate-400 mb-1">当前密码</label>
+           <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">当前密码</label>
            <input type="password" v-model="oldPassword" required 
-             class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+             class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors">
         </div>
         
         <div>
-           <label class="block text-sm font-medium text-slate-400 mb-1">新密码</label>
+           <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">新密码</label>
            <input type="password" v-model="newPassword" required 
-             class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+             class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors">
         </div>
 
         <div>
-           <label class="block text-sm font-medium text-slate-400 mb-1">确认新密码</label>
+           <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">确认新密码</label>
            <input type="password" v-model="confirmPassword" required 
-             class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+             class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors">
         </div>
 
         <div v-if="error" class="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg">{{ error }}</div>
@@ -78,7 +78,7 @@ const handleSubmit = async () => {
 
         <div class="flex justify-end gap-3 mt-6">
           <button type="button" @click="$emit('close')" 
-            class="px-4 py-2 text-slate-400 hover:text-white transition-colors">
+            class="px-4 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors">
             取消
           </button>
           <button type="submit" :disabled="loading"

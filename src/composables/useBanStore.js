@@ -3,6 +3,7 @@ import api from '../utils/api'
 
 // State
 const bans = ref([])
+const publicBans = ref([])
 
 export const useBanStore = () => {
 
@@ -27,6 +28,18 @@ export const useBanStore = () => {
         try {
             const res = await api.get('/bans')
             bans.value = res.data.map(mapBanFromBackend)
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    const fetchPublicBans = async () => {
+        try {
+            const res = await api.get('/bans/public')
+            // Public endpoint returns similar structure but filtered fields. 
+            // We can reuse the mapper if fields match, or use a simplified one.
+            // The mapper handles missing fields gracefully (undefined).
+            publicBans.value = res.data.map(mapBanFromBackend)
         } catch (e) {
             console.error(e)
         }
@@ -109,7 +122,9 @@ export const useBanStore = () => {
 
     return {
         bans,
+        publicBans,
         fetchBans,
+        fetchPublicBans,
         addBan,
         removeBan,
         updateBan,

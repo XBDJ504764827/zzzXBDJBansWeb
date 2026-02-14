@@ -10,7 +10,7 @@
                     <p class="mt-2 text-slate-400 text-lg">
                         服务器违规与封禁记录公示
                         <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-400 border border-slate-700">
-                            共 {{ list.length }} 条记录
+                            共 {{ publicBans.length }} 条记录
                         </span>
                     </p>
                 </div>
@@ -139,9 +139,9 @@
                                                     </button>
                                                 </div>
                                                 <!-- ID2 -->
-                                                <div v-if="item.steam_id" class="flex items-center gap-2 group/id">
+                                                <div v-if="item.steamId" class="flex items-center gap-2 group/id">
                                                     <span class="text-[10px] text-slate-500 uppercase tracking-wider w-8">ID2</span>
-                                                    <span class="font-mono text-xs text-slate-500 select-all group-hover/id:text-slate-400 transition-colors">{{ item.steam_id }}</span>
+                                                    <span class="font-mono text-xs text-slate-500 select-all group-hover/id:text-slate-400 transition-colors">{{ item.steamId }}</span>
                                                 </div>
                                                 <!-- ID3 -->
                                                 <div v-if="item.steam_id_3" class="flex items-center gap-2 group/id">
@@ -159,14 +159,14 @@
                                             <span class="text-sm text-white font-medium">
                                                 {{ formatDuration(item.duration) }}
                                             </span>
-                                            <span v-if="item.expires_at" class="text-xs text-slate-500">
-                                                至 {{ formatDate(item.expires_at) }}
+                                            <span v-if="item.expiresAt" class="text-xs text-slate-500">
+                                                至 {{ formatDate(item.expiresAt) }}
                                             </span>
                                             <span v-else class="text-xs text-rose-400/80">永久有效</span>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <div class="text-xs text-slate-500">{{ formatDate(item.created_at) }}</div>
+                                        <div class="text-xs text-slate-500">{{ formatDate(item.createTime) }}</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -198,7 +198,7 @@
                                 </div>
                                 <div class="flex flex-col gap-0.5 mt-2">
                                     <span v-if="item.steam_id_64" class="font-mono text-xs text-slate-400">ID64: {{ item.steam_id_64 }}</span>
-                                    <span v-if="item.steam_id" class="font-mono text-xs text-slate-500">ID2: {{ item.steam_id }}</span>
+                                    <span v-if="item.steamId" class="font-mono text-xs text-slate-500">ID2: {{ item.steamId }}</span>
                                     <span v-if="item.steam_id_3" class="font-mono text-xs text-slate-500">ID3: {{ item.steam_id_3 }}</span>
                                 </div>
                              </div>
@@ -219,7 +219,7 @@
                                 </div>
                                 <div>
                                     <span class="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">执行时间</span>
-                                    <span class="text-sm text-slate-400">{{ formatDateShort(item.created_at) }}</span>
+                                    <span class="text-sm text-slate-400">{{ formatDateShort(item.createTime) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -273,12 +273,12 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import api from '@/utils/api'; 
+import { useBanStore } from '../composables/useBanStore';
 
 const route = useRoute();
 const router = useRouter();
+const { publicBans, fetchPublicBans } = useBanStore();
 
-const list = ref([]);
 const loading = ref(true);
 const searchQuery = ref('');
 const currentTab = ref(route.query.tab || 'active'); // Default to showing active bans
@@ -288,15 +288,9 @@ const pageSize = 15;
 const fetchList = async () => {
     loading.value = true;
     try {
-        const response = await api.get('/bans/public');
-        if (Array.isArray(response.data)) {
-            list.value = response.data;
-        } else {
-            list.value = [];
-        }
+        await fetchPublicBans();
     } catch (error) {
         console.error('Failed to fetch public bans:', error);
-        list.value = [];
     } finally {
         loading.value = false;
     }
@@ -304,7 +298,7 @@ const fetchList = async () => {
 
 // --- Filters & Search ---
 const filteredList = computed(() => {
-    let result = list.value;
+    let result = publicBans.value;
 
     // Tab Filter
     if (currentTab.value === 'active') {
@@ -317,7 +311,7 @@ const filteredList = computed(() => {
         const q = searchQuery.value.toLowerCase();
         result = result.filter(item => 
             item.name.toLowerCase().includes(q) || 
-            (item.steam_id && item.steam_id.includes(q)) ||
+            (item.steamId && item.steamId.includes(q)) ||
             (item.steam_id_64 && item.steam_id_64.includes(q))
         );
     }

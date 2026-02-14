@@ -121,20 +121,20 @@ const handleCheck = async () => {
     <div @click="closeModal" class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Modal Content -->
-    <div class="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 transform transition-all scale-100">
-      <h3 class="text-xl font-bold text-white mb-6">
+    <div class="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-2xl p-6 transform transition-all scale-100 transition-colors">
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">
         {{ isEditMode ? '修改服务器配置' : '添加新服务器' }}
       </h3>
       
       <div class="space-y-4">
         <!-- Name -->
         <div>
-          <label class="block text-sm font-medium text-slate-400 mb-1">服务器显示名称</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">服务器显示名称</label>
           <input 
             v-model="form.name"
             type="text" 
             placeholder="例如: 僵尸逃跑 #1"
-            class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full px-4 py-2 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
             :class="errors.name ? 'border-red-500' : ''"
           />
           <p v-if="errors.name" class="text-red-500 text-xs mt-1">{{ errors.name }}</p>
@@ -143,23 +143,23 @@ const handleCheck = async () => {
         <!-- IP & Port -->
         <div class="grid grid-cols-3 gap-4">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-slate-400 mb-1">IP 地址 / 域名</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">IP 地址 / 域名</label>
             <input 
               v-model="form.ip"
               type="text" 
               placeholder="127.0.0.1"
-              class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full px-4 py-2 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
               :class="errors.ip ? 'border-red-500' : ''"
             />
              <p v-if="errors.ip" class="text-red-500 text-xs mt-1">{{ errors.ip }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">端口 (Port)</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">端口 (Port)</label>
              <input 
               v-model="form.port"
               type="text" 
               placeholder="27015"
-              class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full px-4 py-2 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
               :class="errors.port ? 'border-red-500' : ''"
             />
              <p v-if="errors.port" class="text-red-500 text-xs mt-1">{{ errors.port }}</p>
@@ -170,25 +170,25 @@ const handleCheck = async () => {
         <div class="flex items-center gap-3 py-2">
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="form.verification_enabled" class="sr-only peer">
-              <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              <span class="ml-3 text-sm font-medium text-slate-300">启用入服资格验证</span>
+              <div class="w-11 h-6 bg-gray-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-300">启用入服资格验证</span>
             </label>
         </div>
 
         <!-- RCON -->
         <div>
-          <label class="block text-sm font-medium text-slate-400 mb-1">RCON 密码</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1">RCON 密码</label>
            <div class="flex gap-2">
              <input 
                 v-model="form.rcon_password"
                 type="password" 
                 placeholder="建议定期更换密码"
-                class="flex-1 px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="flex-1 px-4 py-2 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
               />
               <button 
                 @click="handleCheck"
                 :disabled="checkStatus.loading"
-                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 rounded-lg transition-colors disabled:opacity-50"
+                class="px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 border border-gray-300 dark:border-slate-700 rounded-lg transition-colors disabled:opacity-50"
               >
                 {{ checkStatus.loading ? '连接中...' : '测试连接' }}
               </button>
@@ -207,7 +207,7 @@ const handleCheck = async () => {
       <div class="mt-8 flex justify-end gap-3">
         <button 
           @click="closeModal"
-          class="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
+          class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white transition-colors"
         >
           取消
         </button>
