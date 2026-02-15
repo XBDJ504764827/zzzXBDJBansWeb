@@ -207,13 +207,13 @@ const submitForm = () => {
 
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="w-full max-w-md bg-[#1a1d24] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+    <div class="w-full max-w-md bg-white dark:bg-[#1a1d24] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden transition-colors">
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-[#1e222b]">
-        <h3 class="text-lg font-semibold text-white">
+      <div class="px-6 py-4 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50 dark:bg-[#1e222b]">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
           {{ editMode ? '编辑封禁' : '添加封禁' }}
         </h3>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-white transition-colors">
+        <button @click="$emit('close')" class="text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -224,21 +224,21 @@ const submitForm = () => {
       <div class="p-6 space-y-4">
         <!-- Name -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">玩家名称</label>
+          <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">玩家名称</label>
           <input 
             v-model="formData.name" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             placeholder="输入玩家名称"
           >
         </div>
 
         <!-- Ban Type -->
         <div>
-           <label class="block text-xs font-medium text-gray-400 mb-1">封禁属性</label>
+           <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">封禁属性</label>
            <select 
              v-model="formData.banType"
-             class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+             class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
            >
              <option v-for="type in banTypes" :key="type.value" :value="type.value">
                {{ type.label }}
@@ -248,11 +248,11 @@ const submitForm = () => {
 
         <!-- SteamID -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">SteamID</label>
+          <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">SteamID</label>
           <input 
             v-model="formData.steamId" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             :class="{'border-red-500': errors.steamId}"
             placeholder="STEAM_0:0:12345678"
           >
@@ -261,22 +261,22 @@ const submitForm = () => {
 
         <!-- IP Address -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">IP 地址</label>
+          <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">IP 地址</label>
           <input 
             v-model="formData.ip" 
             type="text" 
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             placeholder="格式为x.x.x.x当不知道时留空，玩家进入时自动获取"
           >
         </div>
         
         <!-- Duration -->
         <div>
-           <label class="block text-xs font-medium text-gray-400 mb-1">封禁时长</label>
+           <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">封禁时长</label>
            <div class="flex gap-2">
                <select 
                  v-model="durationSelect"
-                 class="flex-1 bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                 class="flex-1 bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
                  @change="handleDurationChange"
                >
                  <option v-for="opt in durationOptions" :key="opt.value" :value="opt.value">
@@ -286,23 +286,23 @@ const submitForm = () => {
            </div>
            
            <!-- Custom Time Picker -->
-           <div v-if="durationSelect === 'custom'" class="mt-2 animate-fade-in p-3 bg-white/5 rounded-lg border border-white/5 space-y-3">
+           <div v-if="durationSelect === 'custom'" class="mt-2 animate-fade-in p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/5 space-y-3">
                 <!-- Ban Time (Read-only) -->
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">封禁时间 (当前)</label>
-                    <div class="w-full bg-[#14161b]/50 border border-white/5 rounded-lg px-3 py-2 text-gray-400 text-sm font-mono cursor-not-allowed">
+                    <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">封禁时间 (当前)</label>
+                    <div class="w-full bg-gray-100 dark:bg-[#14161b]/50 border border-gray-200 dark:border-white/5 rounded-lg px-3 py-2 text-slate-500 dark:text-gray-400 text-sm font-mono cursor-not-allowed">
                         {{ new Date().toLocaleString() }}
                     </div>
                 </div>
 
                 <!-- Unban Time (Selectable) -->
                  <div class="space-y-2">
-                      <label class="block text-xs font-medium text-gray-400">解封时间 (日期 + 时间)</label>
+                      <label class="block text-xs font-medium text-slate-500 dark:text-gray-400">解封时间 (日期 + 时间)</label>
                       <div class="flex gap-2">
                         <input 
                             v-model="customDate"
                             type="date"
-                            class="flex-1 bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                            class="flex-1 bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
                         >
                         <!-- Custom Time Selectors -->
                         <div class="flex items-center gap-2 relative">
@@ -313,46 +313,46 @@ const submitForm = () => {
                             <div class="relative w-20 z-20">
                                 <div 
                                     @click="toggleHourSelect"
-                                    class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white cursor-pointer flex justify-between items-center hover:border-white/20 transition-colors"
+                                    class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white cursor-pointer flex justify-between items-center hover:border-gray-300 dark:hover:border-white/20 transition-colors"
                                 >
                                     <span>{{ customHour }}</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': showHourSelect}" viewBox="0 0 20 20" fill="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 dark:text-gray-400 transition-transform" :class="{'rotate-180': showHourSelect}" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <div v-if="showHourSelect" class="absolute top-full left-0 w-full mt-1 bg-[#1e222b] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
+                                <div v-if="showHourSelect" class="absolute top-full left-0 w-full mt-1 bg-white dark:bg-[#1e222b] border border-gray-200 dark:border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
                                     <div 
                                         v-for="h in 24" 
                                         :key="h-1"
                                         @click="selectHour(h-1)"
-                                        class="px-3 py-2 hover:bg-blue-600 cursor-pointer text-center text-sm"
-                                        :class="{'bg-blue-600/20 text-blue-400': customHour === String(h-1).padStart(2, '0')}"
+                                        class="px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-600 cursor-pointer text-center text-sm text-slate-700 dark:text-white"
+                                        :class="{'bg-blue-100 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400': customHour === String(h-1).padStart(2, '0')}"
                                     >
                                         {{ String(h-1).padStart(2, '0') }}
                                     </div>
                                 </div>
                             </div>
 
-                            <span class="text-gray-500 font-bold">:</span>
+                            <span class="text-slate-500 dark:text-gray-500 font-bold">:</span>
 
                             <!-- Minute Selector -->
                             <div class="relative w-20 z-20">
                                 <div 
                                     @click="toggleMinuteSelect"
-                                    class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white cursor-pointer flex justify-between items-center hover:border-white/20 transition-colors"
+                                    class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white cursor-pointer flex justify-between items-center hover:border-gray-300 dark:hover:border-white/20 transition-colors"
                                 >
                                     <span>{{ customMinute }}</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': showMinuteSelect}" viewBox="0 0 20 20" fill="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 dark:text-gray-400 transition-transform" :class="{'rotate-180': showMinuteSelect}" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <div v-if="showMinuteSelect" class="absolute top-full left-0 w-full mt-1 bg-[#1e222b] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
+                                <div v-if="showMinuteSelect" class="absolute top-full left-0 w-full mt-1 bg-white dark:bg-[#1e222b] border border-gray-200 dark:border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto no-scrollbar">
                                     <div 
                                         v-for="m in 60" 
                                         :key="m-1"
                                         @click="selectMinute(m-1)"
-                                        class="px-3 py-2 hover:bg-blue-600 cursor-pointer text-center text-sm"
-                                        :class="{'bg-blue-600/20 text-blue-400': customMinute === String(m-1).padStart(2, '0')}"
+                                        class="px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-600 cursor-pointer text-center text-sm text-slate-700 dark:text-white"
+                                        :class="{'bg-blue-100 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400': customMinute === String(m-1).padStart(2, '0')}"
                                     >
                                         {{ String(m-1).padStart(2, '0') }}
                                     </div>
@@ -363,7 +363,7 @@ const submitForm = () => {
                  </div>
 
                 <!-- Dynamic calculation preview -->
-                <div v-if="customTime" class="text-xs text-blue-400 flex items-center gap-1 pt-1 border-t border-white/5">
+                <div v-if="customTime" class="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1 pt-1 border-t border-gray-200 dark:border-white/5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                     </svg>
@@ -374,11 +374,11 @@ const submitForm = () => {
 
         <!-- Reason -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">封禁原因</label>
+          <label class="block text-xs font-medium text-slate-500 dark:text-gray-400 mb-1">封禁原因</label>
           <textarea 
             v-model="formData.reason" 
             rows="3"
-            class="w-full bg-[#14161b] border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            class="w-full bg-gray-50 dark:bg-[#14161b] border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
             placeholder="输入封禁原因..."
           ></textarea>
         </div>
@@ -386,10 +386,10 @@ const submitForm = () => {
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-white/5 bg-[#1e222b] flex justify-end gap-3">
+      <div class="px-6 py-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#1e222b] flex justify-end gap-3">
         <button 
           @click="$emit('close')" 
-          class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+          class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-colors"
         >
           取消
         </button>

@@ -103,9 +103,9 @@ const getRoleClass = (role) => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold text-white">管理员管理</h1>
-        <p class="text-gray-400 text-sm mt-1">
-            当前身份: <span class="text-white font-medium">{{ currentUser?.username }}</span>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">管理员管理</h1>
+        <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">
+            当前身份: <span class="text-slate-900 dark:text-white font-medium">{{ currentUser?.username }}</span>
             <span class="ml-2 text-xs px-2 py-0.5 rounded border" :class="getRoleClass(currentUser?.role)">
                 {{ getRoleLabel(currentUser?.role) }}
             </span>
@@ -126,41 +126,41 @@ const getRoleClass = (role) => {
     </div>
 
     <!-- Admin List -->
-    <div class="bg-[#1a1d24] border border-white/5 rounded-xl overflow-hidden">
+    <div class="bg-white dark:bg-[#1a1d24] border border-gray-200 dark:border-white/5 rounded-xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
                 <thead>
-                    <tr class="border-b border-white/5 bg-white/5">
-                        <th class="px-6 py-4 font-medium text-gray-300">用户名</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">身份</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">备注</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">SteamID</th>
-                        <th class="px-6 py-4 font-medium text-gray-300">创建时间</th>
-                        <th v-if="isSystemAdmin" class="px-6 py-4 font-medium text-gray-300 text-right">操作</th>
+                    <tr class="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-white/5">
+                        <th class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300">用户名</th>
+                        <th class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300">身份</th>
+                        <th class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300">备注</th>
+                        <th class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300">SteamID</th>
+                        <th class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300">创建时间</th>
+                        <th v-if="isSystemAdmin" class="px-6 py-4 font-medium text-slate-500 dark:text-gray-300 text-right">操作</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-white/5">
-                    <tr v-for="admin in adminList" :key="admin.id" class="hover:bg-white/5 transition-colors">
+                <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+                    <tr v-for="admin in adminList" :key="admin.id" class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="font-medium text-white">{{ admin.username }}</div>
+                            <div class="font-medium text-slate-900 dark:text-white">{{ admin.username }}</div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium border" :class="getRoleClass(admin.role)">
                                 {{ getRoleLabel(admin.role) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-gray-400 text-sm">
+                        <td class="px-6 py-4 text-slate-500 dark:text-gray-400 text-sm">
                              {{ admin.remark || '-' }}
                         </td>
-                        <td class="px-6 py-4 text-gray-400 font-mono">{{ admin.steamId || '-' }}</td>
-                        <td class="px-6 py-4 text-gray-400">{{ new Date(admin.createTime).toLocaleDateString() }}</td>
+                        <td class="px-6 py-4 text-slate-500 dark:text-gray-400 font-mono">{{ admin.steamId || '-' }}</td>
+                        <td class="px-6 py-4 text-slate-500 dark:text-gray-400">{{ new Date(admin.createTime).toLocaleDateString() }}</td>
                         
                          <!-- Permission Check: Only super_admin can edit/delete, or self can edit -->
                         <td v-if="isSystemAdmin || admin.id === currentUser?.id" class="px-6 py-4 text-right">
                              <div class="flex items-center justify-end gap-2">
                                 <button 
                                     @click="openEditModal(admin)"
-                                    class="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-slate-400 hover:text-slate-600 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                                     title="编辑"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -169,7 +169,7 @@ const getRoleClass = (role) => {
                                 </button>
                                 <button 
                                     @click="handleDelete(admin.id)"
-                                    class="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-400/10 rounded-lg transition-colors"
                                     title="删除"
                                     :disabled="currentUser?.id === admin.id"
                                     :class="{'opacity-50 cursor-not-allowed': currentUser?.id === admin.id}"

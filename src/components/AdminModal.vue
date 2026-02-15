@@ -107,7 +107,7 @@ const submitForm = () => {
       <div class="p-6 space-y-4">
         <!-- Username -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">用户名</label>
+          <label class="block text-xs font-medium text-slate-700 dark:text-gray-400 mb-1">用户名</label>
           <input 
             v-model="formData.username" 
             type="text" 
@@ -120,7 +120,7 @@ const submitForm = () => {
 
         <!-- Password -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">密码</label>
+          <label class="block text-xs font-medium text-slate-700 dark:text-gray-400 mb-1">密码</label>
           <input 
             v-model="formData.password" 
             type="text" 
@@ -133,7 +133,7 @@ const submitForm = () => {
 
         <!-- Role -->
         <div>
-           <label class="block text-xs font-medium text-gray-400 mb-1">权限等级</label>
+           <label class="block text-xs font-medium text-slate-700 dark:text-gray-400 mb-1">权限等级</label>
            <select 
              v-model="formData.role"
              :disabled="disableRole"
@@ -149,7 +149,7 @@ const submitForm = () => {
 
         <!-- Remark -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">备注 (选填)</label>
+          <label class="block text-xs font-medium text-slate-700 dark:text-gray-400 mb-1">备注 (选填)</label>
           <input 
             v-model="formData.remark" 
             type="text" 
@@ -160,7 +160,7 @@ const submitForm = () => {
 
         <!-- SteamID -->
         <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">SteamID</label>
+          <label class="block text-xs font-medium text-slate-700 dark:text-gray-400 mb-1">SteamID</label>
           <input 
             v-model="formData.steamId" 
             type="text" 

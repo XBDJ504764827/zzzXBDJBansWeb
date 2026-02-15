@@ -277,7 +277,7 @@ const handleLookup = async () => {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold text-white">进服申请管理 (白名单)</h2>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">进服申请管理 (白名单)</h2>
       <button 
         @click="showAddModal = true"
         class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
@@ -290,14 +290,14 @@ const handleLookup = async () => {
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 border-b border-slate-800">
+    <div class="flex gap-2 border-b border-gray-200 dark:border-slate-800">
       <button 
         @click="activeTab = 'approved'"
         :class="[
           'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
           activeTab === 'approved' 
-            ? 'text-blue-400 border-blue-400' 
-            : 'text-slate-400 border-transparent hover:text-white'
+            ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400' 
+            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-white'
         ]"
       >
         已通过 ({{ whitelist.length }})
@@ -307,12 +307,12 @@ const handleLookup = async () => {
         :class="[
           'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
           activeTab === 'pending' 
-            ? 'text-yellow-400 border-yellow-400' 
-            : 'text-slate-400 border-transparent hover:text-white'
+            ? 'text-amber-600 dark:text-yellow-400 border-amber-600 dark:border-yellow-400' 
+            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-white'
         ]"
       >
         待审核 
-        <span v-if="pendingList.length > 0" class="ml-1 px-1.5 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-full">
+        <span v-if="pendingList.length > 0" class="ml-1 px-1.5 py-0.5 text-xs bg-amber-100 dark:bg-yellow-500/20 text-amber-700 dark:text-yellow-400 rounded-full">
           {{ pendingList.length }}
         </span>
       </button>
@@ -321,8 +321,8 @@ const handleLookup = async () => {
         :class="[
           'px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
           activeTab === 'rejected' 
-            ? 'text-red-400 border-red-400' 
-            : 'text-slate-400 border-transparent hover:text-white'
+            ? 'text-red-600 dark:text-red-400 border-red-600 dark:border-red-400' 
+            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-white'
         ]"
       >
         已拒绝 ({{ rejectedList.length }})
@@ -330,22 +330,22 @@ const handleLookup = async () => {
     </div>
 
     <!-- Approved Table -->
-    <div v-show="activeTab === 'approved'" class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <div v-show="activeTab === 'approved'" class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-950/50 border-b border-slate-800">
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">ID</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">玩家昵称</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID2</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID3</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">添加时间</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">处理人</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
+            <tr class="bg-gray-50 dark:bg-slate-950/50 border-b border-gray-200 dark:border-slate-800">
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">ID</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">玩家昵称</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">SteamID2</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">SteamID3</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">SteamID64</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">添加时间</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">处理人</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
                 <td colspan="8" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
@@ -353,27 +353,27 @@ const handleLookup = async () => {
                 <td colspan="8" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
             <template v-for="item in whitelist" :key="item.id">
-            <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
-              <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 text-slate-300">
+            <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+              <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
+              <td class="p-4 text-slate-900 dark:text-slate-300">
                   {{ item.name }}
                   <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                           Global封禁记录
                       </span>
                   </div>
               </td>
-              <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id || '-' }}</td>
-              <td class="p-4 font-mono text-sm text-green-400">{{ item.steam_id_3 || '-' }}</td>
-              <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || '-' }}</td>
-              <td class="p-4 text-slate-400 text-sm">
+              <td class="p-4 font-mono text-sm text-blue-600 dark:text-blue-400">{{ item.steam_id || '-' }}</td>
+              <td class="p-4 font-mono text-sm text-green-600 dark:text-green-400">{{ item.steam_id_3 || '-' }}</td>
+              <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">{{ item.steam_id_64 || '-' }}</td>
+              <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                 {{ new Date(item.created_at).toLocaleString() }}
               </td>
-              <td class="p-4 text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
+              <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
               <td class="p-4 text-right">
                 <button 
                   @click="handleDelete(item.id)"
-                  class="text-red-400 hover:text-red-300 transition-colors p-2 hover:bg-red-400/10 rounded-lg"
+                  class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-400/10 rounded-lg"
                   title="删除"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -383,11 +383,11 @@ const handleLookup = async () => {
               </td>
             </tr>
             <!-- Ban Info Row for Approved -->
-            <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+            <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-50 dark:bg-red-950/10 border-b border-red-100 dark:border-red-900/20">
                 <td colspan="8" class="p-4">
                     <div class="space-y-3">
                         <div 
-                            class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                            class="flex items-center gap-2 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-700 dark:hover:text-red-300 transition-colors select-none"
                             @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
                         >
                             <svg 
@@ -403,39 +403,39 @@ const handleLookup = async () => {
                         </div>
                         
                         <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
-                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-white dark:bg-slate-950/50 border border-red-200 dark:border-red-900/30 rounded-lg p-3 text-sm">
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="space-y-2 w-full">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
-                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300 border border-red-200 dark:border-red-500/30 uppercase">
                                                 {{ ban.ban_type }}
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
-                                            <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                            <span class="text-slate-700 dark:text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
                                         </div>
-                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                             <span class="w-20 text-right shrink-0">封禁时间:</span>
                                             <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
                                         </div>
-                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                             <span class="w-20 text-right shrink-0">过期时间:</span>
-                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-500 dark:text-red-400' : 'text-slate-500'">
                                                 {{ new Date(ban.expires_on).toLocaleString() }}
                                             </span>
-                                            <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                            <span v-else class="text-red-500 dark:text-red-400 font-bold">永久封禁</span>
                                         </div>
                                         <div v-if="ban.stats" class="flex items-start gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
-                                            <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                            <div class="text-slate-600 dark:text-slate-500 text-xs font-mono bg-gray-50 dark:bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
                                                 {{ ban.stats }}
                                             </div>
                                         </div>
                                         <div v-if="ban.notes" class="flex items-start gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
-                                            <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs italic">{{ ban.notes }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -451,19 +451,19 @@ const handleLookup = async () => {
     </div>
 
     <!-- Pending Table -->
-    <div v-show="activeTab === 'pending'" class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <div v-show="activeTab === 'pending'" class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-950/50 border-b border-slate-800">
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">ID</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">玩家昵称</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">申请时间</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
+            <tr class="bg-gray-50 dark:bg-slate-950/50 border-b border-gray-200 dark:border-slate-800">
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">ID</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">玩家昵称</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">SteamID64</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">申请时间</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
                 <td colspan="5" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
@@ -471,24 +471,24 @@ const handleLookup = async () => {
                 <td colspan="5" class="p-4 text-center text-slate-500">暂无待审核申请</td>
             </tr>
             <template v-for="item in pendingList" :key="item.id">
-                <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
-                <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-                <td class="p-4 text-slate-300">
+                <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+                <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
+                <td class="p-4 text-slate-900 dark:text-slate-300">
                     {{ item.name }}
                     <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                             Global封禁记录
                         </span>
                     </div>
                 </td>
-                <td class="p-4 font-mono text-sm text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
-                <td class="p-4 text-slate-400 text-sm">
+                <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
+                <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                     {{ new Date(item.created_at).toLocaleString() }}
                 </td>
                 <td class="p-4 text-right flex items-center justify-end gap-2">
                     <button 
                     @click="handleApprove(item.id)"
-                    class="text-green-400 hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1"
+                    class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-50 dark:hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1"
                     title="通过"
                     >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -498,7 +498,7 @@ const handleLookup = async () => {
                     </button>
                     <button 
                     @click="handleReject(item.id)"
-                    class="text-red-400 hover:text-red-300 transition-colors px-3 py-1.5 hover:bg-red-400/10 rounded-lg text-sm flex items-center gap-1"
+                    class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors px-3 py-1.5 hover:bg-red-50 dark:hover:bg-red-400/10 rounded-lg text-sm flex items-center gap-1"
                     title="拒绝"
                     >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -509,11 +509,11 @@ const handleLookup = async () => {
                 </td>
                 </tr>
                 <!-- Ban Info Row -->
-                <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+                <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-50 dark:bg-red-950/10 border-b border-red-100 dark:border-red-900/20">
                     <td colspan="5" class="p-4">
                         <div class="space-y-3">
                             <div 
-                                class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                                class="flex items-center gap-2 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-700 dark:hover:text-red-300 transition-colors select-none"
                                 @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
                             >
                                 <svg 
@@ -529,50 +529,50 @@ const handleLookup = async () => {
                             </div>
                             
                             <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
-                                <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                                <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-white dark:bg-slate-950/50 border border-red-200 dark:border-red-900/30 rounded-lg p-3 text-sm">
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="space-y-2 w-full">
                                             <!-- Ban Type -->
                                             <div class="flex items-center gap-2">
-                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
-                                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                                <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300 border border-red-200 dark:border-red-500/30 uppercase">
                                                     {{ ban.ban_type }}
                                                 </span>
                                             </div>
                                             
                                             <!-- Server Name -->
                                             <div class="flex items-center gap-2">
-                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
-                                                <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                                <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                                <span class="text-slate-700 dark:text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
                                             </div>
 
                                             <!-- Created Time -->
-                                            <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                                 <span class="w-20 text-right shrink-0">封禁时间:</span>
                                                 <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
                                             </div>
 
                                             <!-- Expires Time -->
-                                            <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                                 <span class="w-20 text-right shrink-0">过期时间:</span>
-                                                <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                                <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-500 dark:text-red-400' : 'text-slate-500'">
                                                     {{ new Date(ban.expires_on).toLocaleString() }}
                                                 </span>
-                                                <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                                <span v-else class="text-red-500 dark:text-red-400 font-bold">永久封禁</span>
                                             </div>
 
                                             <!-- Stats -->
                                             <div v-if="ban.stats" class="flex items-start gap-2">
-                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
-                                                <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                                <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                                <div class="text-slate-600 dark:text-slate-500 text-xs font-mono bg-gray-50 dark:bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
                                                     {{ ban.stats }}
                                                 </div>
                                             </div>
 
                                             <!-- Notes -->
                                             <div v-if="ban.notes" class="flex items-start gap-2">
-                                                <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
-                                                <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                                <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                                <span class="text-slate-500 dark:text-slate-400 text-xs italic">{{ ban.notes }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -588,21 +588,21 @@ const handleLookup = async () => {
     </div>
 
     <!-- Rejected Table -->
-    <div v-show="activeTab === 'rejected'" class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <div v-show="activeTab === 'rejected'" class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-950/50 border-b border-slate-800">
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">ID</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">玩家昵称</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">SteamID64</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">拒绝理由</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">申请时间</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">处理人</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
+            <tr class="bg-gray-50 dark:bg-slate-950/50 border-b border-gray-200 dark:border-slate-800">
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">ID</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">玩家昵称</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">SteamID64</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">拒绝理由</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">申请时间</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">处理人</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
                 <td colspan="7" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
@@ -610,28 +610,28 @@ const handleLookup = async () => {
                 <td colspan="7" class="p-4 text-center text-slate-500">暂无已拒绝申请</td>
             </tr>
             <template v-for="item in rejectedList" :key="item.id">
-            <tr class="group hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
-              <td class="p-4 text-slate-500 text-sm">#{{ item.id }}</td>
-              <td class="p-4 text-slate-300">
+            <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
+              <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
+              <td class="p-4 text-slate-900 dark:text-slate-300">
                   {{ item.name }}
                   <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900 text-red-100">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                           Global封禁记录
                       </span>
                   </div>
               </td>
-              <td class="p-4 font-mono text-sm text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
-              <td class="p-4 text-sm text-red-300 max-w-xs truncate" :title="item.reject_reason">
+              <td class="p-4 font-mono text-sm text-red-600 dark:text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
+              <td class="p-4 text-sm text-red-500 dark:text-red-300 max-w-xs truncate" :title="item.reject_reason">
                   {{ item.reject_reason || '-' }}
               </td>
-              <td class="p-4 text-slate-400 text-sm">
+              <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                 {{ new Date(item.created_at).toLocaleString() }}
               </td>
-              <td class="p-4 text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
+              <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">{{ item.admin_name || '-' }}</td>
               <td class="p-4 text-right">
                 <button 
                   @click="handleApprove(item.id)"
-                  class="text-green-400 hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1 ml-auto"
+                  class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors px-3 py-1.5 hover:bg-green-50 dark:hover:bg-green-400/10 rounded-lg text-sm flex items-center gap-1 ml-auto"
                   title="重新通过"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -642,11 +642,11 @@ const handleLookup = async () => {
               </td>
             </tr>
             <!-- Ban Info Row for Rejected -->
-             <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-950/10 border-b border-red-900/20">
+             <tr v-if="banCache[item.steam_id_64 || item.steam_id]" class="bg-red-50 dark:bg-red-950/10 border-b border-red-100 dark:border-red-900/20">
                 <td colspan="7" class="p-4">
                     <div class="space-y-3">
                         <div 
-                            class="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-300 transition-colors select-none"
+                            class="flex items-center gap-2 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider cursor-pointer hover:text-red-700 dark:hover:text-red-300 transition-colors select-none"
                             @click="toggleBanDetails(item.steam_id_64 || item.steam_id)"
                         >
                             <svg 
@@ -662,39 +662,39 @@ const handleLookup = async () => {
                         </div>
                         
                         <div v-show="expandedBans[item.steam_id_64 || item.steam_id]" class="grid gap-2 transition-all duration-300 ease-in-out">
-                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-slate-950/50 border border-red-900/30 rounded-lg p-3 text-sm">
+                            <div v-for="ban in banCache[item.steam_id_64 || item.steam_id]" :key="ban.ban_id" class="bg-white dark:bg-slate-950/50 border border-red-200 dark:border-red-900/30 rounded-lg p-3 text-sm">
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="space-y-2 w-full">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
-                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁属性:</span>
+                                            <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-300 border border-red-200 dark:border-red-500/30 uppercase">
                                                 {{ ban.ban_type }}
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
-                                            <span class="text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">封禁服务器:</span>
+                                            <span class="text-slate-700 dark:text-slate-300 font-medium text-sm">{{ ban.server_name }}</span>
                                         </div>
-                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                             <span class="w-20 text-right shrink-0">封禁时间:</span>
                                             <span class="font-mono">{{ new Date(ban.created_on).toLocaleString() }}</span>
                                         </div>
-                                        <div class="flex items-center gap-2 text-slate-400 text-xs">
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs">
                                             <span class="w-20 text-right shrink-0">过期时间:</span>
-                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-400' : 'text-slate-500'">
+                                            <span v-if="ban.expires_on" class="font-mono" :class="new Date(ban.expires_on) > new Date() ? 'text-red-500 dark:text-red-400' : 'text-slate-500'">
                                                 {{ new Date(ban.expires_on).toLocaleString() }}
                                             </span>
-                                            <span v-else class="text-red-400 font-bold">永久封禁</span>
+                                            <span v-else class="text-red-500 dark:text-red-400 font-bold">永久封禁</span>
                                         </div>
                                         <div v-if="ban.stats" class="flex items-start gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
-                                            <div class="text-slate-500 text-xs font-mono bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0 mt-1">统计数据:</span>
+                                            <div class="text-slate-600 dark:text-slate-500 text-xs font-mono bg-gray-50 dark:bg-black/20 px-2 py-1 rounded break-all whitespace-pre-wrap">
                                                 {{ ban.stats }}
                                             </div>
                                         </div>
                                          <div v-if="ban.notes" class="flex items-start gap-2">
-                                            <span class="text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
-                                            <span class="text-slate-400 text-xs italic">{{ ban.notes }}</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs w-20 text-right shrink-0">备注:</span>
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs italic">{{ ban.notes }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -709,86 +709,47 @@ const handleLookup = async () => {
       </div>
     </div>
 
-    <!-- Add Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showAddModal = false"></div>
-      <div class="relative bg-slate-900 rounded-xl border border-slate-800 p-6 w-full max-w-md shadow-2xl">
-        <h3 class="text-lg font-bold text-white mb-4">添加白名单 (进服申请)</h3>
-        
-        <form @submit.prevent="handleAdd" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">Steam ID / Profile URL</label>
-            <div class="flex gap-2">
-                <input 
-                  v-model="formData.steam_id"
-                  type="text" 
-                  required
-                  placeholder="e.g. 76561198000000000 or Profile URL"
-                  class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  @keydown.enter.prevent="handleLookup"
-                >
-                <button 
-                    type="button"
-                    @click="handleLookup"
-                    :disabled="lookupLoading"
-                    class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-colors border border-slate-700 disabled:opacity-50 flex items-center gap-2"
-                >
-                    <svg v-if="lookupLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    查询
-                </button>
+    <!-- Add Whitelist Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-slate-900 rounded-xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-800 shadow-xl">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">添加白名单</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">SteamID (任意格式) <span class="text-red-500">*</span></label>
+                    <input 
+                        v-model="newWhitelist.steamId"
+                        type="text" 
+                        class="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        placeholder="STEAM_1:..."
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">玩家昵称 (可选)</label>
+                    <input 
+                        v-model="newWhitelist.name"
+                        type="text" 
+                        class="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        placeholder="输入玩家昵称"
+                    >
+                </div>
+                <div class="flex items-center justify-end gap-3 mt-6">
+                    <button 
+                        @click="showAddModal = false"
+                        class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    >
+                        取消
+                    </button>
+                    <button 
+                        @click="handleAddWhitelist"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                        添加
+                    </button>
+                </div>
             </div>
-            <p class="text-xs text-slate-500 mt-1">支持 SteamID64, SteamID2, SteamID3 或 个人资料链接</p>
-          </div>
-
-           <!-- Lookup Result -->
-          <div v-if="lookupResult" class="bg-slate-950/50 rounded-lg p-3 border border-slate-800 flex items-start gap-4">
-               <img :src="lookupResult.avatarfull" alt="Avatar" class="w-12 h-12 rounded-lg border border-slate-700 shadow-sm">
-               <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-white truncate">{{ lookupResult.personaname }}</p>
-                    <p class="text-xs font-mono text-slate-400 truncate">{{ lookupResult.steamid }}</p>
-                    
-                    <a :href="lookupResult.profileurl" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 mt-0.5 inline-flex items-center gap-1">
-                        Steam Profile
-                        <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" /></svg>
-                    </a>
-               </div>
-               <div class="flex flex-col items-end">
-                    <span class="text-xs text-green-400 bg-green-900/20 px-2 py-0.5 rounded border border-green-900/30">已获取信息</span>
-               </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">玩家昵称</label>
-            <input 
-              v-model="formData.name"
-              type="text" 
-              required
-              placeholder="e.g. Simple"
-              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            >
-          </div>
-
-          <div class="flex items-center justify-end gap-3 mt-6">
-            <button 
-              type="button" 
-              @click="showAddModal = false"
-              class="px-4 py-2 text-slate-400 hover:text-white transition-colors"
-            >
-              取消
-            </button>
-            <button 
-              type="submit"
-              class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              确认添加
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
+
 
     <!-- Reject Reason Modal -->
     <div v-if="showRejectModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -827,7 +788,7 @@ const handleLookup = async () => {
     <!-- Context Menu -->
     <div v-if="showContextMenu" class="fixed inset-0 z-[100]" @click="closeContextMenu" @contextmenu.prevent="closeContextMenu">
       <div 
-        class="fixed bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 w-48 overflow-hidden"
+        class="fixed bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-xl py-1 w-48 overflow-hidden"
         :style="{ top: `${contextMenuPosition.y}px`, left: `${contextMenuPosition.x}px` }"
         @click.stop
       >
@@ -835,7 +796,7 @@ const handleLookup = async () => {
           v-if="getPlayerSteamId(selectedPlayer)"
           :href="`https://gokz.top/profile/${getPlayerSteamId(selectedPlayer)}`"
           target="_blank"
-          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2"
           @click="closeContextMenu"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -847,7 +808,7 @@ const handleLookup = async () => {
           v-if="getPlayerSteamId(selectedPlayer)"
           :href="`https://kzgo.eu/players/${getPlayerSteamId(selectedPlayer)}`"
           target="_blank"
-          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2"
           @click="closeContextMenu"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -859,7 +820,7 @@ const handleLookup = async () => {
           v-if="getPlayerSteamProfile(selectedPlayer)"
           :href="getPlayerSteamProfile(selectedPlayer)"
           target="_blank"
-          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+          class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2"
           @click="closeContextMenu"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -154,10 +154,10 @@ const handleSubmit = async (formData) => {
 
 const getStatusColor = (status) => {
     switch (status) {
-        case 'active': return 'text-red-400 bg-red-400/10'
-        case 'unbanned': return 'text-green-400 bg-green-400/10'
-        case 'expired': return 'text-gray-400 bg-gray-400/10'
-        default: return 'text-gray-400'
+        case 'active': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-400/10'
+        case 'unbanned': return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-400/10'
+        case 'expired': return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-400/10'
+        default: return 'text-gray-500 dark:text-gray-400'
     }
 }
 
@@ -187,8 +187,8 @@ const getBanTypeLabel = (type) => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold text-white">封禁管理</h1>
-        <p class="text-gray-400 text-sm mt-1">管理游戏服务器的玩家封禁记录</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">封禁管理</h1>
+        <p class="text-slate-500 dark:text-gray-400 text-sm mt-1">管理游戏服务器的玩家封禁记录</p>
       </div>
       <button 
         @click="openAddModal"
@@ -202,51 +202,51 @@ const getBanTypeLabel = (type) => {
     </div>
 
     <!-- Empty State -->
-    <div v-if="!hasBans" class="flex flex-col items-center justify-center py-20 bg-[#1a1d24] border border-white/5 rounded-xl">
-      <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="!hasBans" class="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1d24] border border-gray-200 dark:border-white/5 rounded-xl">
+      <div class="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-white mb-1">无封禁玩家</h3>
-      <p class="text-gray-400 text-sm">当前没有任何封禁记录</p>
+      <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-1">无封禁玩家</h3>
+      <p class="text-slate-500 dark:text-gray-400 text-sm">当前没有任何封禁记录</p>
     </div>
 
     <!-- Ban List -->
-    <div v-else class="bg-[#1a1d24] border border-white/5 rounded-xl overflow-hidden">
-        <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-700">
-                <thead class="bg-gray-700">
+    <div v-else class="bg-white dark:bg-[#1a1d24] border border-gray-200 dark:border-white/5 rounded-xl overflow-hidden shadow-sm">
+        <div class="overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Player Info</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">IP</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-gray-300 uppercase tracking-wider">Player Info</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-gray-300 uppercase tracking-wider">IP</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-700">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     <template v-for="ban in bans" :key="ban.id">
                         <!-- Main Row -->
-                        <tr @click="toggleExpand(ban.id)" class="hover:bg-gray-750 cursor-pointer transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">#{{ ban.id }}</td>
+                        <tr @click="toggleExpand(ban.id)" class="hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-gray-400">#{{ ban.id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-medium text-white">{{ ban.name }}</span>
-                                    <span class="text-xs text-blue-400 font-mono">{{ ban.steamId }}</span>
-                                    <span v-if="ban.steam_id_3" class="text-xs text-green-400 font-mono">{{ ban.steam_id_3 }}</span>
-                                    <span v-if="ban.steam_id_64" class="text-xs text-yellow-400 font-mono">{{ ban.steam_id_64 }}</span>
+                                    <span class="text-sm font-medium text-slate-900 dark:text-white">{{ ban.name }}</span>
+                                    <span class="text-xs text-blue-500 dark:text-blue-400 font-mono">{{ ban.steamId }}</span>
+                                    <span v-if="ban.steam_id_3" class="text-xs text-green-600 dark:text-green-400 font-mono">{{ ban.steam_id_3 }}</span>
+                                    <span v-if="ban.steam_id_64" class="text-xs text-amber-600 dark:text-yellow-400 font-mono">{{ ban.steam_id_64 }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-gray-400 font-mono">
                                 {{ ban.ip }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center space-x-2">
-                                    <span :class="getStatusColor(ban.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                    <span :class="getStatusColor(ban.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full border border-gray-100 dark:border-transparent">
                                         {{ getStatusText(ban.status) }}
                                     </span>
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-900 text-blue-200">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                         {{ getBanTypeLabel(ban.banType) }}
                                     </span>
                                 </div>
@@ -257,7 +257,7 @@ const getBanTypeLabel = (type) => {
                                 <button 
                                     v-if="ban.status === 'active'"
                                     @click="openEditModal(ban)"
-                                    class="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-slate-400 hover:text-slate-600 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                                     title="编辑"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -269,7 +269,7 @@ const getBanTypeLabel = (type) => {
                                 <button 
                                     v-if="ban.status === 'expired' || ban.status === 'unbanned'"
                                     @click="openRebanModal(ban)"
-                                    class="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-400/10 rounded-lg transition-colors"
                                     title="重新封禁"
                                 >
                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -281,7 +281,7 @@ const getBanTypeLabel = (type) => {
                                 <button 
                                     v-if="ban.status === 'active'"
                                     @click="handleLiftBan(ban.id)"
-                                    class="p-1.5 text-orange-400 hover:text-orange-300 hover:bg-orange-400/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-400/10 rounded-lg transition-colors"
                                     title="解除封禁 (Lift Ban)"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -293,7 +293,7 @@ const getBanTypeLabel = (type) => {
                                 <button 
                                     v-if="isSystemAdmin"
                                     @click="handleHardDelete(ban.id)"
-                                    class="p-1.5 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    class="p-1.5 text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                                     title="彻底删除 (移除记录并解封)"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -305,40 +305,40 @@ const getBanTypeLabel = (type) => {
                     </tr>
                     
                     <!-- Expanded Detail Row -->
-                    <tr v-if="expandedBans.includes(ban.id)" class="bg-gray-700/30 transition-all duration-200">
-                        <td colspan="4" class="px-6 py-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm bg-[#1a1d24] p-4 rounded-xl border border-white/5 shadow-inner">
+                    <tr v-if="expandedBans.includes(ban.id)" class="bg-gray-50 dark:bg-gray-700/30 transition-all duration-200">
+                        <td colspan="5" class="px-6 py-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm bg-white dark:bg-[#1a1d24] p-4 rounded-xl border border-gray-200 dark:border-white/5 shadow-inner">
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">IP 地址</span>
-                                    <span class="font-mono text-gray-200 select-all">{{ ban.ip || 'N/A' }}</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">IP 地址</span>
+                                    <span class="font-mono text-slate-700 dark:text-gray-200 select-all">{{ ban.ip || 'N/A' }}</span>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">来源服务器</span>
-                                    <span class="text-gray-200">{{ getServerName(ban.serverId) }}</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">来源服务器</span>
+                                    <span class="text-slate-700 dark:text-gray-200">{{ getServerName(ban.serverId) }}</span>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">执行管理员</span>
-                                    <span class="text-blue-400">{{ ban.adminName || 'System' }}</span>
-                                    <span class="text-xs text-gray-600 block" v-if="ban.createTime">at {{ new Date(ban.createTime).toLocaleString() }}</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">执行管理员</span>
+                                    <span class="text-blue-600 dark:text-blue-400">{{ ban.adminName || 'System' }}</span>
+                                    <span class="text-xs text-slate-500 dark:text-gray-600 block" v-if="ban.createTime">at {{ new Date(ban.createTime).toLocaleString() }}</span>
                                 </div>
                                 <div class="col-span-1 md:col-span-3 space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">封禁原因</span>
-                                    <div class="text-gray-200 bg-gray-800/50 p-2 rounded border border-white/5 break-words">
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁原因</span>
+                                    <div class="text-slate-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800/50 p-2 rounded border border-gray-200 dark:border-white/5 break-words">
                                         {{ ban.reason }}
                                     </div>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">封禁时长</span>
-                                    <span class="text-gray-200">{{ ban.duration }}</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁时长</span>
+                                    <span class="text-slate-700 dark:text-gray-200">{{ ban.duration }}</span>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">封禁时间</span>
-                                    <span class="text-gray-200 font-mono text-xs">{{ ban.createTime ? new Date(ban.createTime).toLocaleString() : '-' }}</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁时间</span>
+                                    <span class="text-slate-700 dark:text-gray-200 font-mono text-xs">{{ ban.createTime ? new Date(ban.createTime).toLocaleString() : '-' }}</span>
                                 </div>
                                 <div class="space-y-1">
-                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-medium">解封时间 / 过期</span>
-                                    <span v-if="ban.expiresAt" class="text-yellow-400 font-mono text-xs">{{ new Date(ban.expiresAt).toLocaleString() }}</span>
-                                    <span v-else class="text-gray-500 text-xs">永久 / 手动解除</span>
+                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">解封时间 / 过期</span>
+                                    <span v-if="ban.expiresAt" class="text-amber-600 dark:text-yellow-400 font-mono text-xs">{{ new Date(ban.expiresAt).toLocaleString() }}</span>
+                                    <span v-else class="text-slate-500 dark:text-gray-500 text-xs">永久 / 手动解除</span>
                                 </div>
                             </div>
                         </td>

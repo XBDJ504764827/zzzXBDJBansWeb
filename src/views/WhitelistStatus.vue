@@ -1,21 +1,21 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
+    <div class="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-200 font-sans selection:bg-indigo-500/30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-800/60 pb-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200 dark:border-slate-800/60 pb-8">
                 <div>
                     <h2 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 tracking-tight">
                         白名单公示
                     </h2>
-                    <p class="mt-2 text-slate-400 text-lg">
+                    <p class="mt-2 text-slate-500 dark:text-slate-400 text-lg">
                         实时查看申请进度与审核结果
-                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-400 border border-slate-700">
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700 shadow-sm">
                             共 {{ list.length }} 条记录
                         </span>
                     </p>
                 </div>
                 <div>
-                     <router-link to="/apply" class="group inline-flex items-center px-5 py-2.5 border border-indigo-500/30 rounded-xl shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)] text-sm font-semibold text-white bg-indigo-600/10 hover:bg-indigo-600/20 hover:border-indigo-500/50 hover:shadow-indigo-500/20 backdrop-blur-sm transition-all duration-300">
+                     <router-link to="/apply" class="group inline-flex items-center px-5 py-2.5 border border-indigo-200 dark:border-indigo-500/30 rounded-xl shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)] text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-600/10 dark:hover:bg-indigo-600/20 hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-indigo-500/20 backdrop-blur-sm transition-all duration-300">
                         <svg class="mr-2 -ml-1 h-5 w-5 text-indigo-400 group-hover:-translate-x-1 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
@@ -26,9 +26,9 @@
 
             <!-- Controls (Search & Tabs) -->
             <div class="sticky top-4 z-20">
-                <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200 dark:border-slate-800 rounded-2xl shadow-xl dark:shadow-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center transition-colors">
                     <!-- Status Tabs -->
-                    <div class="flex p-1 space-x-1 bg-slate-950/50 rounded-xl border border-slate-800/50 overflow-x-auto max-w-full no-scrollbar">
+                    <div class="flex p-1 space-x-1 bg-gray-100 dark:bg-slate-950/50 rounded-xl border border-gray-200 dark:border-slate-800/50 overflow-x-auto max-w-full no-scrollbar">
                         <button 
                             v-for="tab in tabs" 
                             :key="tab.value"
@@ -36,8 +36,8 @@
                             :class="[
                                 'px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap flex items-center gap-2',
                                 currentTab === tab.value 
-                                    ? 'bg-slate-800 text-white shadow-lg shadow-black/20 ring-1 ring-white/10' 
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-lg shadow-black/5 dark:shadow-black/20 ring-1 ring-gray-200 dark:ring-white/10' 
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800/50'
                             ]"
                         >
                             <span :class="[
@@ -63,7 +63,7 @@
                         <input 
                             v-model="searchQuery" 
                             type="text" 
-                            class="block w-full pl-10 pr-3 py-2.5 bg-slate-950/50 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all shadow-inner" 
+                            class="block w-full pl-10 pr-3 py-2.5 bg-gray-50 dark:bg-slate-950/50 border border-gray-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all shadow-inner" 
                             placeholder="搜索昵称 / SteamID..." 
                         />
                     </div>
@@ -81,38 +81,38 @@
 
             <div v-else class="space-y-6">
                  <!-- Empty State -->
-                <div v-if="filteredList.length === 0" class="flex flex-col items-center justify-center py-24 bg-slate-900/30 rounded-2xl border border-dashed border-slate-800">
-                    <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                <div v-if="filteredList.length === 0" class="flex flex-col items-center justify-center py-24 bg-white/30 dark:bg-slate-900/30 rounded-2xl border border-dashed border-gray-300 dark:border-slate-800">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
                         <svg class="h-8 w-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-medium text-slate-300">未找到相关记录</h3>
+                    <h3 class="text-lg font-medium text-slate-900 dark:text-slate-300">未找到相关记录</h3>
                     <p class="mt-1 text-slate-500">请尝试更换筛选条件或清除搜索关键词</p>
                     <button 
                         @click="clearFilters"
-                        class="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                        class="mt-6 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
                     >
                         清除所有筛选
                     </button>
                 </div>
 
                 <!-- Desktop Table View -->
-                <div v-if="filteredList.length > 0" class="hidden md:block rounded-2xl border border-slate-800 overflow-hidden shadow-2xl bg-slate-900/40 backdrop-blur-sm">
+                <div v-if="filteredList.length > 0" class="hidden md:block rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-2xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm transition-colors">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-slate-800/50">
-                            <thead class="bg-slate-950/50">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800/50">
+                            <thead class="bg-gray-50 dark:bg-slate-950/50">
                                 <tr>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">交互状态</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">信息</th>
                                     <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">SteamID (64)</th>
                                     <th v-if="currentTab === 'rejected' || currentTab === 'all'" scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">拒绝理由</th>
-                                    <th v-if="currentTab !== 'pending'" scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">处理人</th>
-                                    <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">申请时间</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">处理人</th>
+                                    <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">申请时间</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/50 bg-slate-900/20">
-                                <tr v-for="item in paginatedList" :key="item.id" class="hover:bg-indigo-500/5 transition-colors group">
+                            <tbody class="divide-y divide-gray-200 dark:divide-slate-800/50 bg-white/50 dark:bg-slate-900/20">
+                                <tr v-for="item in paginatedList" :key="item.id" class="hover:bg-indigo-50 dark:hover:bg-indigo-500/5 transition-colors group">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <span :class="getStatusBadgeClass(item.status)" class="px-3 py-1 rounded-full text-xs font-medium border shadow-sm">
@@ -121,31 +121,30 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">{{ item.name }}</div>
+                                        <div class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{{ item.name }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <button 
-                                            @click="copyToClipboard(item.steam_id_64 || item.steam_id)"
-                                            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/50 border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-all group/btn"
+                                            class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-950/50 border border-gray-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all group/btn"
                                             title="点击复制 SteamID64"
                                         >
-                                            <span class="font-mono text-xs text-slate-400 group-hover/btn:text-indigo-300">{{ item.steam_id_64 || item.steam_id }}</span>
-                                            <svg class="h-3.5 w-3.5 text-slate-600 group-hover/btn:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <span class="font-mono text-xs text-slate-500 dark:text-slate-400 group-hover/btn:text-indigo-600 dark:group-hover/btn:text-indigo-300">{{ item.steam_id_64 || item.steam_id }}</span>
+                                            <svg class="h-3.5 w-3.5 text-slate-500 dark:text-slate-600 group-hover/btn:text-indigo-500 dark:group-hover/btn:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                             </svg>
                                         </button>
                                     </td>
                                     <td v-if="currentTab === 'rejected' || currentTab === 'all'" class="px-6 py-4">
-                                        <span v-if="item.status === 'rejected'" class="text-sm text-rose-400 max-w-xs truncate block" :title="item.reject_reason">
+                                        <span v-if="item.status === 'rejected'" class="text-sm text-rose-500 dark:text-rose-400 max-w-xs truncate block" :title="item.reject_reason">
                                             {{ item.reject_reason || '-' }}
                                         </span>
-                                        <span v-else class="text-slate-600">-</span>
+                                        <span v-else class="text-slate-500 dark:text-slate-600">-</span>
                                     </td>
                                     <td v-if="currentTab !== 'pending'" class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm text-slate-400">{{ item.admin_name || '-' }}</span>
+                                        <span class="text-sm text-slate-500 dark:text-slate-400">{{ item.admin_name || '-' }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <div class="text-sm text-slate-400">{{ formatDate(item.created_at) }}</div>
+                                        <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatDate(item.created_at) }}</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -155,13 +154,13 @@
 
                 <!-- Mobile Card View -->
                 <div v-if="filteredList.length > 0" class="md:hidden grid grid-cols-1 gap-4">
-                    <div v-for="item in paginatedList" :key="item.id" class="bg-slate-900/60 backdrop-blur-md rounded-xl border border-slate-800 p-5 shadow-lg relative overflow-hidden group">
+                    <div v-for="item in paginatedList" :key="item.id" class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-xl border border-gray-200 dark:border-slate-800 p-5 shadow-lg relative overflow-hidden group">
                         <!-- Left Border Status Indicator -->
                         <div class="absolute left-0 top-0 bottom-0 w-1" :class="getStatusBorderClass(item.status)"></div>
                         
                         <div class="flex justify-between items-start mb-4 pl-3">
                              <div>
-                                <h3 class="text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition-colors">{{ item.name }}</h3>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ item.name }}</h3>
                                 <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -177,12 +176,12 @@
                              <!-- IDs Grid -->
                         <div class="pl-3 space-y-2">
                             <!-- ID64 (Primary) -->
-                            <div class="bg-slate-950/50 rounded-lg p-2 border border-slate-800 flex justify-between items-center group/id">
+                            <div class="bg-gray-50 dark:bg-slate-950/50 rounded-lg p-2 border border-gray-200 dark:border-slate-800 flex justify-between items-center group/id">
                                 <div class="flex flex-col">
                                     <span class="text-[10px] text-slate-500 uppercase tracking-wider">SteamID64</span>
-                                    <span class="font-mono text-xs text-slate-300">{{ item.steam_id_64 || 'N/A' }}</span>
+                                    <span class="font-mono text-xs text-slate-700 dark:text-slate-300">{{ item.steam_id_64 || 'N/A' }}</span>
                                 </div>
-                                <button @click="copyToClipboard(item.steam_id_64)" class="p-1.5 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded transition-colors">
+                                <button @click="copyToClipboard(item.steam_id_64)" class="p-1.5 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded transition-colors">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
@@ -191,14 +190,14 @@
 
                             <!-- Additional Info -->
                             <div class="grid grid-cols-2 gap-2">
-                                <div v-if="item.status === 'rejected'" class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50 col-span-2">
+                                <div v-if="item.status === 'rejected'" class="bg-rose-50 dark:bg-slate-950/30 rounded-lg p-2 border border-rose-100 dark:border-slate-800/50 col-span-2">
                                     <span class="block text-[10px] text-rose-500/70 uppercase tracking-wider mb-0.5">拒绝理由</span>
-                                    <span class="text-xs text-rose-400">{{ item.reject_reason || '-' }}</span>
+                                    <span class="text-xs text-rose-500 dark:text-rose-400">{{ item.reject_reason || '-' }}</span>
                                 </div>
                                 
-                                <div v-if="item.admin_name" class="bg-slate-950/30 rounded-lg p-2 border border-slate-800/50">
+                                <div v-if="item.admin_name" class="bg-gray-50 dark:bg-slate-950/30 rounded-lg p-2 border border-gray-200 dark:border-slate-800/50">
                                     <span class="block text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">处理人</span>
-                                    <span class="text-xs text-slate-300">{{ item.admin_name }}</span>
+                                    <span class="text-xs text-slate-700 dark:text-slate-300">{{ item.admin_name }}</span>
                                 </div>
                             </div>
                         </div>
@@ -206,17 +205,17 @@
                 </div>
 
                 <!-- Pagination -->
-                 <div v-if="filteredList.length > pageSize" class="flex flex-col sm:flex-row items-center justify-between border-t border-slate-800/60 pt-6 gap-4">
+                 <div v-if="filteredList.length > pageSize" class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 dark:border-slate-800/60 pt-6 gap-4">
                     <p class="text-sm text-slate-500 order-2 sm:order-1">
-                        显示 <span class="text-slate-300 font-medium">{{ startIndex + 1 }}</span> - <span class="text-slate-300 font-medium">{{ Math.min(endIndex, filteredList.length) }}</span> 条，
-                        共 <span class="text-slate-300 font-medium">{{ filteredList.length }}</span> 条
+                        显示 <span class="text-slate-700 dark:text-slate-300 font-medium">{{ startIndex + 1 }}</span> - <span class="text-slate-700 dark:text-slate-300 font-medium">{{ Math.min(endIndex, filteredList.length) }}</span> 条，
+                        共 <span class="text-slate-700 dark:text-slate-300 font-medium">{{ filteredList.length }}</span> 条
                     </p>
                     
                     <nav class="isolate inline-flex rounded-xl shadow-sm order-1 sm:order-2" aria-label="Pagination">
                          <button 
                             @click="currentPage--"
                             :disabled="currentPage === 1"
-                            class="relative inline-flex items-center rounded-l-xl px-3 py-2 bg-slate-900 border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            class="relative inline-flex items-center rounded-l-xl px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
                         </button>
@@ -228,7 +227,7 @@
                             :class="[
                                 currentPage === p 
                                     ? 'z-10 bg-indigo-600 text-white border-indigo-500 shadow-[0_0_10px_-2px_rgba(99,102,241,0.5)]' 
-                                    : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-white',
+                                    : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white',
                                 'relative inline-flex items-center px-4 py-2 text-sm font-semibold border-y border-r first:border-l transition-all'
                             ]"
                         >
@@ -238,7 +237,7 @@
                         <button 
                             @click="currentPage++"
                             :disabled="currentPage >= totalPages"
-                            class="relative inline-flex items-center rounded-r-xl px-3 py-2 bg-slate-900 border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            class="relative inline-flex items-center rounded-r-xl px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
                         </button>
@@ -385,11 +384,11 @@ const getStatusText = (status) => {
 
 const getStatusBadgeClass = (status) => {
     const map = {
-        'approved': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10',
-        'pending': 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10',
-        'rejected': 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-rose-500/10'
+        'approved': 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 shadow-emerald-500/10',
+        'pending': 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20 shadow-amber-500/10',
+        'rejected': 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 shadow-rose-500/10'
     };
-    return map[status] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+    return map[status] || 'bg-gray-100 dark:bg-slate-500/10 text-slate-500 dark:text-slate-400 border-gray-200 dark:border-slate-500/20';
 };
 
 const getStatusBorderClass = (status) => {

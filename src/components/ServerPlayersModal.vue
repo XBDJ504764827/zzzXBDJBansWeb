@@ -123,14 +123,14 @@ watch(() => props.modelValue, (val) => {
 
 <template>
   <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="closeModal">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transition-colors">
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50 rounded-t-xl">
-        <h3 class="text-xl font-bold text-white flex items-center gap-2">
-           <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 rounded-t-xl">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+           <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
            在线玩家 - {{ server?.name }}
         </h3>
-        <button @click="closeModal" class="text-slate-400 hover:text-white transition-colors">
+        <button @click="closeModal" class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -140,21 +140,21 @@ watch(() => props.modelValue, (val) => {
         
         <div v-if="loading" class="flex flex-col items-center justify-center py-12">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
-            <p class="text-slate-400">正在查询服务器...</p>
+            <p class="text-slate-500 dark:text-slate-400">正在查询服务器...</p>
         </div>
 
         <div v-else-if="error" class="text-center py-12">
-            <div class="inline-block p-3 rounded-full bg-red-900/20 text-red-400 mb-4">
+            <div class="inline-block p-3 rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 mb-4">
                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
-            <p class="text-red-400 mb-2">{{ error }}</p>
-            <button @click="loadPlayers" class="text-sm text-blue-400 hover:text-blue-300 underline">重试</button>
+            <p class="text-red-600 dark:text-red-400 mb-2">{{ error }}</p>
+            <button @click="loadPlayers" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">重试</button>
         </div>
 
         <div v-else class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b border-slate-800 text-xs text-slate-400 bg-slate-800/30 font-mono">
+              <tr class="border-b border-gray-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/30 font-mono">
                 <th class="p-3">#UserID</th>
                 <th class="p-3">Name</th>
                 <th class="p-3">SteamID</th>
@@ -162,18 +162,18 @@ watch(() => props.modelValue, (val) => {
                 <th class="p-3">Ping</th>
               </tr>
             </thead>
-            <tbody class="text-sm text-slate-200">
+            <tbody class="text-sm text-slate-700 dark:text-slate-200">
                <tr 
                  v-for="p in players" 
                  :key="p.userid"
                  @contextmenu="handleRightClick($event, p)"
-                 class="border-b border-slate-800 hover:bg-slate-800/50 transition-colors cursor-context-menu"
+                 class="border-b border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors cursor-context-menu"
                >
                  <td class="p-3 font-mono text-slate-500">{{ p.userid }}</td>
                  <td class="p-3 font-bold">{{ p.name }}</td>
-                 <td class="p-3 font-mono text-xs text-slate-400">{{ p.steam_id }}</td>
-                 <td class="p-3 text-slate-400">{{ p.time }}</td>
-                 <td class="p-3" :class="p.ping > 100 ? 'text-red-400' : 'text-green-400'">{{ p.ping }}ms</td>
+                 <td class="p-3 font-mono text-xs text-slate-500 dark:text-slate-400">{{ p.steam_id }}</td>
+                 <td class="p-3 text-slate-500 dark:text-slate-400">{{ p.time }}</td>
+                 <td class="p-3" :class="p.ping > 100 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">{{ p.ping }}ms</td>
                </tr>
                <tr v-if="players.length === 0">
                  <td colspan="5" class="p-8 text-center text-slate-500 italic">
@@ -190,8 +190,8 @@ watch(() => props.modelValue, (val) => {
         </div>
       </div>
       
-      <div class="px-6 py-4 border-t border-slate-800 bg-slate-800/30 flex justify-end">
-        <button @click="closeModal" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors">
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/30 flex justify-end">
+        <button @click="closeModal" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-lg text-sm font-medium transition-colors">
           关闭
         </button>
       </div>
@@ -201,16 +201,16 @@ watch(() => props.modelValue, (val) => {
     <div 
       v-if="showContextMenu" 
       :style="{ top: contextMenuPos.y + 'px', left: contextMenuPos.x + 'px' }"
-      class="fixed z-[60] bg-slate-800 border border-slate-700 shadow-xl rounded-lg py-1 w-48 overflow-hidden transform"
+      class="fixed z-[60] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-xl rounded-lg py-1 w-48 overflow-hidden transform"
     >
-       <div class="px-3 py-2 border-b border-slate-700 text-xs text-slate-400 bg-slate-900/50 truncate font-bold">
+       <div class="px-3 py-2 border-b border-gray-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-900/50 truncate font-bold">
          {{ selectedPlayer?.name }}
        </div>
-       <button @click="promptKick" class="w-full text-left px-4 py-2 text-sm text-yellow-400 hover:bg-slate-700 flex items-center gap-2">
+       <button @click="promptKick" class="w-full text-left px-4 py-2 text-sm text-yellow-600 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2">
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
          踢出 (Kick)
        </button>
-       <button @click="promptBan" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2">
+       <button @click="promptBan" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2">
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
          封禁 (Ban)
        </button>
@@ -218,17 +218,17 @@ watch(() => props.modelValue, (val) => {
 
     <!-- Kick Confirm Dialog -->
     <div v-if="showKickConfirm" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-       <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
-          <h3 class="text-lg font-bold text-white mb-4">踢出玩家</h3>
-          <p class="text-sm text-slate-300 mb-4">
-             确定要踢出 <span class="font-bold text-white">{{ selectedPlayer?.name }}</span> 吗？
+       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">踢出玩家</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+             确定要踢出 <span class="font-bold text-slate-900 dark:text-white">{{ selectedPlayer?.name }}</span> 吗？
           </p>
           <div class="mb-4">
-            <label class="block text-xs text-slate-400 mb-1">踢出理由 (Reason)</label>
-            <input v-model="actionReason" type="text" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none">
+            <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">踢出理由 (Reason)</label>
+            <input v-model="actionReason" type="text" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 outline-none">
           </div>
           <div class="flex justify-end gap-2">
-             <button @click="showKickConfirm = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
+             <button @click="showKickConfirm = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white text-sm">取消</button>
              <button 
                @click="confirmKick" 
                :disabled="isProcessing"
@@ -243,31 +243,31 @@ watch(() => props.modelValue, (val) => {
 
     <!-- Ban Dialog -->
     <div v-if="showBanDialog" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-       <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
-          <h3 class="text-lg font-bold text-white mb-4">封禁玩家</h3>
-          <p class="text-sm text-slate-300 mb-4">
-             对 <span class="font-bold text-white">{{ selectedPlayer?.name }}</span> 执行封禁
+       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-6 w-full max-w-sm shadow-2xl">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">封禁玩家</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+             对 <span class="font-bold text-slate-900 dark:text-white">{{ selectedPlayer?.name }}</span> 执行封禁
           </p>
           
           <div class="space-y-3 mb-6">
             <div>
-              <label class="block text-xs text-slate-400 mb-1">封禁时长 (分钟, 0=永久)</label>
-              <input v-model.number="banDuration" type="number" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none">
+              <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">封禁时长 (分钟, 0=永久)</label>
+              <input v-model.number="banDuration" type="number" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 outline-none">
               <div class="flex gap-2 mt-1">
-                 <button @click="banDuration=0" class="text-xs px-2 py-0.5 bg-slate-800 rounded border border-slate-700 hover:bg-red-900/30 text-red-300">永久</button>
-                 <button @click="banDuration=60" class="text-xs px-2 py-0.5 bg-slate-800 rounded border border-slate-700 hover:bg-slate-700 text-slate-300">1小时</button>
-                 <button @click="banDuration=1440" class="text-xs px-2 py-0.5 bg-slate-800 rounded border border-slate-700 hover:bg-slate-700 text-slate-300">1天</button>
-                 <button @click="banDuration=10080" class="text-xs px-2 py-0.5 bg-slate-800 rounded border border-slate-700 hover:bg-slate-700 text-slate-300">1周</button>
+                 <button @click="banDuration=0" class="text-xs px-2 py-0.5 bg-gray-100 hover:bg-red-50 text-red-600 border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-red-900/30 dark:text-red-300 rounded">永久</button>
+                 <button @click="banDuration=60" class="text-xs px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-slate-700 border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:text-slate-300 rounded">1小时</button>
+                 <button @click="banDuration=1440" class="text-xs px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-slate-700 border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:text-slate-300 rounded">1天</button>
+                 <button @click="banDuration=10080" class="text-xs px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-slate-700 border border-gray-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:text-slate-300 rounded">1周</button>
               </div>
             </div>
             <div>
-              <label class="block text-xs text-slate-400 mb-1">封禁理由 (Reason)</label>
-              <input v-model="actionReason" type="text" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-sm text-white focus:border-blue-500 outline-none">
+              <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">封禁理由 (Reason)</label>
+              <input v-model="actionReason" type="text" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded p-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 outline-none">
             </div>
           </div>
           
           <div class="flex justify-end gap-2">
-             <button @click="showBanDialog = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-400 hover:text-white text-sm">取消</button>
+             <button @click="showBanDialog = false" :disabled="isProcessing" class="px-3 py-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white text-sm">取消</button>
              <button 
                @click="confirmBan" 
                :disabled="isProcessing"

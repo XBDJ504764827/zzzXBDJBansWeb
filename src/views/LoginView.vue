@@ -38,10 +38,10 @@ const router = useRouter()
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-950 p-4">
-    <div class="w-full max-w-md bg-slate-900 rounded-xl border border-slate-800 shadow-2xl overflow-hidden">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-950 p-4 transition-colors duration-300">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-2xl overflow-hidden transition-all duration-300">
       <!-- Header -->
-      <div class="px-8 py-10 bg-gradient-to-b from-slate-900 to-slate-800/50">
+      <div class="px-8 py-10 bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-800/50">
         <h1 class="text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
           zzzXBDJBans
         </h1>
@@ -58,23 +58,23 @@ const router = useRouter()
 
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div class="space-y-2">
-            <label for="username" class="text-sm font-medium text-slate-300">用户名</label>
+            <label for="username" class="text-sm font-medium text-slate-700 dark:text-slate-300">用户名</label>
             <input 
               id="username"
               v-model="username"
               type="text" 
-              class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+              class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               placeholder="请输入管理员账号"
             />
           </div>
 
           <div class="space-y-2">
-            <label for="password" class="text-sm font-medium text-slate-300">密码</label>
+            <label for="password" class="text-sm font-medium text-slate-700 dark:text-slate-300">密码</label>
             <input 
               id="password"
               v-model="password"
               type="password" 
-              class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+              class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -91,7 +91,7 @@ const router = useRouter()
             </svg>
           </button>
 
-          <div class="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-slate-800/50">
+          <div class="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-gray-200 dark:border-slate-800/50">
               <router-link to="/apply" class="text-sm font-medium text-slate-500 hover:text-indigo-400 transition-colors">
                   申请白名单
               </router-link>
@@ -107,7 +107,7 @@ const router = useRouter()
       </div>
       
       <!-- Footer -->
-      <div class="px-8 py-4 bg-slate-950/50 border-t border-slate-800/50 text-center">
+      <div class="px-8 py-4 bg-gray-50 dark:bg-slate-950/50 border-t border-gray-200 dark:border-slate-800/50 text-center">
          <p class="text-xs text-slate-500 font-mono">
            System Status: <span class="text-green-500">Online</span>
          </p>

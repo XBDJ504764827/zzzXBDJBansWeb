@@ -33,34 +33,30 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <div v-if="modelValue" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-    <!-- Backdrop -->
-    <div @click="closeModal" class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
-
-    <!-- Modal Content -->
-    <div class="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-6 transform transition-all scale-100">
-      <h3 class="text-xl font-bold text-white mb-4">创建服务器组</h3>
+  <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal"></div>
+    <div class="bg-white dark:bg-slate-900 rounded-xl max-w-sm w-full p-6 relative border border-gray-200 dark:border-white/10 shadow-xl transition-colors">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">添加服务器组</h3>
       
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-400 mb-1">组名称</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-gray-400 mb-1">组名称</label>
           <input 
             v-model="groupName"
-            type="text" 
-            placeholder="例如: CS2 社区服"
-            class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            type="text"
+            class="w-full px-3 py-2 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors"
+            placeholder="例如: 混战服"
             @keyup.enter="handleSave"
           />
         </div>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-3">
-        <button 
-          @click="closeModal"
-          class="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
-        >
-          取消
-        </button>
+        
+        <div class="flex justify-end gap-3 pt-2">
+          <button 
+            @click="closeModal"
+            class="px-4 py-2 text-sm text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            取消
+          </button>
         <button 
           @click="handleSave"
           :disabled="!groupName.trim()"
@@ -70,5 +66,6 @@ const handleSave = async () => {
         </button>
       </div>
     </div>
+  </div>
   </div>
 </template>

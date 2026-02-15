@@ -80,43 +80,43 @@ onMounted(fetchVerifications)
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold text-white">进服列表</h2>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">进服列表</h2>
     </div>
 
     <!-- Table -->
-    <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors">
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-950/50 border-b border-slate-800">
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">Steam ID</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">状态</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">原因/备注</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">等级/时长</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase">上次更新</th>
-              <th class="p-4 text-xs font-semibold text-slate-400 uppercase text-right">操作</th>
+            <tr class="bg-gray-50 dark:bg-slate-950/50 border-b border-gray-200 dark:border-slate-800">
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Steam ID</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">状态</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">原因/备注</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">等级/时长</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">上次更新</th>
+              <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase text-right">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
             <tr v-if="loading" class="animate-pulse">
                 <td colspan="6" class="p-4 text-center text-slate-500">Loading...</td>
             </tr>
             <tr v-else-if="verifications.length === 0">
                 <td colspan="6" class="p-4 text-center text-slate-500">暂无数据</td>
             </tr>
-            <tr v-for="item in verifications" :key="item.steam_id" class="group hover:bg-slate-800/50 transition-colors">
-              <td class="p-4 font-mono text-sm text-blue-400">{{ item.steam_id }}</td>
+            <tr v-for="item in verifications" :key="item.steam_id" class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+              <td class="p-4 font-mono text-sm text-blue-600 dark:text-blue-400">{{ item.steam_id }}</td>
               <td class="p-4">
                   <span class="px-2 py-1 text-xs font-medium rounded-full border" :class="getStatusColor(item.status)">
                       {{ item.status }}
                   </span>
               </td>
-              <td class="p-4 text-slate-300 text-sm max-w-xs truncate" :title="item.reason">{{ item.reason || '-' }}</td>
-              <td class="p-4 text-slate-400 text-sm">
+              <td class="p-4 text-slate-700 dark:text-slate-300 text-sm max-w-xs truncate" :title="item.reason">{{ item.reason || '-' }}</td>
+              <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                   <div class="flex flex-col gap-1">
                       <span v-if="item.steam_level !== null">Lv.{{ item.steam_level }}</span>
                       <span v-if="item.playtime_minutes !== null">{{ (item.playtime_minutes / 60).toFixed(1) }}h</span>
-                      <span v-if="item.steam_level === null && item.playtime_minutes === null" class="text-slate-600">-</span>
+                      <span v-if="item.steam_level === null && item.playtime_minutes === null" class="text-slate-400 dark:text-slate-600">-</span>
                   </div>
               </td>
               <td class="p-4 text-slate-500 text-xs font-mono">
@@ -125,7 +125,7 @@ onMounted(fetchVerifications)
               <td class="p-4 text-right">
                 <button 
                   @click="handleDelete(item.steam_id)"
-                  class="text-red-400 hover:text-red-300 transition-colors p-2 hover:bg-red-400/10 rounded-lg"
+                  class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-400/10 rounded-lg"
                   title="删除"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
