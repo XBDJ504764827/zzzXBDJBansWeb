@@ -274,7 +274,9 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useBanStore } from '../composables/useBanStore';
+import { useToast } from '@/composables/useToast';
 
+const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const { publicBans, fetchPublicBans } = useBanStore();
@@ -406,10 +408,42 @@ const getStatusBadgeClass = (status) => {
 
 const copyToClipboard = async (text) => {
     if (!text) return;
+
+    // Fallback for non-secure contexts (http)
+    if (!navigator.clipboard) {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                toast.success('复制成功');
+            } else {
+                toast.error('复制失败');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+            toast.error('复制失败');
+        }
+        return;
+    }
+
     try {
         await navigator.clipboard.writeText(text);
+        toast.success('复制成功');
     } catch (err) {
         console.error('Failed to copy', err);
+        toast.error('复制失败');
     }
 };
 

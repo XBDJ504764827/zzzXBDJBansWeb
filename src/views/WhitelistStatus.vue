@@ -125,6 +125,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <button 
+                                            @click="copyToClipboard(item.steam_id_64 || item.steam_id)"
                                             class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-950/50 border border-gray-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all group/btn"
                                             title="点击复制 SteamID64"
                                         >
@@ -252,6 +253,9 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/utils/api'; // Use configured API instance
+import { useToast } from '@/composables/useToast';
+
+const toast = useToast();
 
 const route = useRoute();
 const router = useRouter();
@@ -402,11 +406,42 @@ const getStatusBorderClass = (status) => {
 
 const copyToClipboard = async (text) => {
     if (!text) return;
+
+    // Fallback for non-secure contexts (http)
+    if (!navigator.clipboard) {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                toast.success('复制成功');
+            } else {
+                toast.error('复制失败');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+            toast.error('复制失败');
+        }
+        return;
+    }
+
     try {
         await navigator.clipboard.writeText(text);
-        // Visual feedback could be added here if needed
+        toast.success('复制成功');
     } catch (err) {
         console.error('Failed to copy', err);
+        toast.error('复制失败');
     }
 };
 
