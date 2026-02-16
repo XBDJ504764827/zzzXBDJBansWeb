@@ -272,6 +272,48 @@ const handleLookup = async () => {
         lookupLoading.value = false
     }
 }
+
+const copyToClipboard = async (text, label) => {
+    if (!text) return
+    
+    // Fallback for non-secure contexts (http)
+    if (!navigator.clipboard) {
+        try {
+            const textArea = document.createElement("textarea")
+            textArea.value = text
+            
+            // Ensure it's not visible but part of the DOM
+            textArea.style.position = "fixed"
+            textArea.style.left = "-9999px"
+            textArea.style.top = "0"
+            document.body.appendChild(textArea)
+            
+            textArea.focus()
+            textArea.select()
+            
+            const successful = document.execCommand('copy')
+            document.body.removeChild(textArea)
+            
+            if (successful) {
+                toast.success(`${label}已复制到剪切板`)
+            } else {
+                throw new Error('Fallback copy failed')
+            }
+        } catch (err) {
+            console.error('Fallback copy failed: ', err)
+            toast.error('复制失败')
+        }
+        return
+    }
+
+    try {
+        await navigator.clipboard.writeText(text)
+        toast.success(`${label}已复制到剪切板`)
+    } catch (err) {
+        console.error('Failed to copy: ', err)
+        toast.error('复制失败')
+    }
+}
 </script>
 
 <template>
@@ -356,16 +398,46 @@ const handleLookup = async () => {
             <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-900 dark:text-slate-300">
-                  {{ item.name }}
+                  <span 
+                    @click="copyToClipboard(item.name, '玩家名称')" 
+                    class="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    title="点击复制玩家名称"
+                  >
+                    {{ item.name }}
+                  </span>
                   <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
                       <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                           Global封禁记录
                       </span>
                   </div>
               </td>
-              <td class="p-4 font-mono text-sm text-blue-600 dark:text-blue-400">{{ item.steam_id || '-' }}</td>
-              <td class="p-4 font-mono text-sm text-green-600 dark:text-green-400">{{ item.steam_id_3 || '-' }}</td>
-              <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">{{ item.steam_id_64 || '-' }}</td>
+              <td class="p-4 font-mono text-sm text-blue-600 dark:text-blue-400">
+                  <span 
+                    @click="copyToClipboard(item.steam_id, '玩家SteamID2')" 
+                    class="cursor-pointer hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                    title="点击复制 SteamID2"
+                  >
+                    {{ item.steam_id || '-' }}
+                  </span>
+              </td>
+              <td class="p-4 font-mono text-sm text-green-600 dark:text-green-400">
+                  <span 
+                    @click="copyToClipboard(item.steam_id_3, '玩家SteamID3')" 
+                    class="cursor-pointer hover:text-green-800 dark:hover:text-green-300 transition-colors"
+                    title="点击复制 SteamID3"
+                  >
+                    {{ item.steam_id_3 || '-' }}
+                  </span>
+              </td>
+              <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">
+                  <span 
+                    @click="copyToClipboard(item.steam_id_64, '玩家SteamID64')" 
+                    class="cursor-pointer hover:text-amber-800 dark:hover:text-yellow-300 transition-colors"
+                    title="点击复制 SteamID64"
+                  >
+                    {{ item.steam_id_64 || '-' }}
+                  </span>
+              </td>
               <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                 {{ new Date(item.created_at).toLocaleString() }}
               </td>
@@ -474,14 +546,28 @@ const handleLookup = async () => {
                 <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
                 <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
                 <td class="p-4 text-slate-900 dark:text-slate-300">
-                    {{ item.name }}
+                    <span 
+                        @click="copyToClipboard(item.name, '玩家名称')" 
+                        class="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        title="点击复制玩家名称"
+                    >
+                        {{ item.name }}
+                    </span>
                     <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                             Global封禁记录
                         </span>
                     </div>
                 </td>
-                <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">{{ item.steam_id_64 || item.steam_id }}</td>
+                <td class="p-4 font-mono text-sm text-amber-600 dark:text-yellow-400">
+                    <span 
+                        @click="copyToClipboard(item.steam_id_64 || item.steam_id, '玩家SteamID')" 
+                        class="cursor-pointer hover:text-amber-800 dark:hover:text-yellow-300 transition-colors"
+                        title="点击复制 SteamID"
+                    >
+                        {{ item.steam_id_64 || item.steam_id }}
+                    </span>
+                </td>
                 <td class="p-4 text-slate-500 dark:text-slate-400 text-sm">
                     {{ new Date(item.created_at).toLocaleString() }}
                 </td>
@@ -613,14 +699,28 @@ const handleLookup = async () => {
             <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors" @contextmenu.prevent="handleContextMenu($event, item)">
               <td class="p-4 text-slate-500 dark:text-slate-500 text-sm">#{{ item.id }}</td>
               <td class="p-4 text-slate-900 dark:text-slate-300">
-                  {{ item.name }}
+                  <span 
+                    @click="copyToClipboard(item.name, '玩家名称')" 
+                    class="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    title="点击复制玩家名称"
+                  >
+                      {{ item.name }}
+                  </span>
                   <div v-if="banCache[item.steam_id_64 || item.steam_id]" class="mt-1">
                       <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
                           Global封禁记录
                       </span>
                   </div>
               </td>
-              <td class="p-4 font-mono text-sm text-red-600 dark:text-red-400">{{ item.steam_id_64 || item.steam_id }}</td>
+              <td class="p-4 font-mono text-sm text-red-600 dark:text-red-400">
+                  <span 
+                    @click="copyToClipboard(item.steam_id_64 || item.steam_id, '玩家SteamID')" 
+                    class="cursor-pointer hover:text-red-800 dark:hover:text-red-300 transition-colors"
+                    title="点击复制 SteamID"
+                  >
+                      {{ item.steam_id_64 || item.steam_id }}
+                  </span>
+              </td>
               <td class="p-4 text-sm text-red-500 dark:text-red-300 max-w-xs truncate" :title="item.reject_reason">
                   {{ item.reject_reason || '-' }}
               </td>

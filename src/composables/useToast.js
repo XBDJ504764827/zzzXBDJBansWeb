@@ -46,7 +46,7 @@ const globalToasts = ref([])
 let idCounter = 0
 
 const add = (options) => {
-    const id = idCounter++
+    const id = String(idCounter++)
     const toast = {
         id,
         ...options
