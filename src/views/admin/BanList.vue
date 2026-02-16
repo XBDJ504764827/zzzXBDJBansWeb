@@ -228,14 +228,21 @@ const getBanTypeLabel = (type) => {
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     <template v-for="ban in bans" :key="ban.id">
                         <!-- Main Row -->
-                        <tr @click="toggleExpand(ban.id)" class="hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer transition-colors duration-150">
+                        <tr @click="toggleExpand(ban.id)" class="hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-gray-400">#{{ ban.id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-medium text-slate-900 dark:text-white">{{ ban.name }}</span>
-                                    <span class="text-xs text-blue-500 dark:text-blue-400 font-mono">{{ ban.steamId }}</span>
-                                    <span v-if="ban.steam_id_3" class="text-xs text-green-600 dark:text-green-400 font-mono">{{ ban.steam_id_3 }}</span>
-                                    <span v-if="ban.steam_id_64" class="text-xs text-amber-600 dark:text-yellow-400 font-mono">{{ ban.steam_id_64 }}</span>
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-sm font-bold text-slate-900 dark:text-white leading-none">{{ ban.name }}</span>
+                                    <div class="flex flex-col gap-1 text-xs">
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                            <span class="font-medium uppercase tracking-wider text-[10px] w-12 shrink-0 text-slate-400 dark:text-slate-500">Steam64</span>
+                                            <span class="font-mono text-slate-700 dark:text-slate-300 select-all">{{ ban.steam_id_64 || '-' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                             <span class="font-medium uppercase tracking-wider text-[10px] w-12 shrink-0 text-slate-400 dark:text-slate-500">ID</span>
+                                            <span class="font-mono select-all">{{ ban.steamId || '-' }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-gray-400 font-mono">
@@ -305,40 +312,63 @@ const getBanTypeLabel = (type) => {
                     </tr>
                     
                     <!-- Expanded Detail Row -->
-                    <tr v-if="expandedBans.includes(ban.id)" class="bg-gray-50 dark:bg-gray-700/30 transition-all duration-200">
+                    <tr v-if="expandedBans.includes(ban.id)" class="bg-gray-50/50 dark:bg-slate-800/20">
                         <td colspan="5" class="px-6 py-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm bg-white dark:bg-[#1a1d24] p-4 rounded-xl border border-gray-200 dark:border-white/5 shadow-inner">
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">IP 地址</span>
-                                    <span class="font-mono text-slate-700 dark:text-gray-200 select-all">{{ ban.ip || 'N/A' }}</span>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">来源服务器</span>
-                                    <span class="text-slate-700 dark:text-gray-200">{{ getServerName(ban.serverId) }}</span>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">执行管理员</span>
-                                    <span class="text-blue-600 dark:text-blue-400">{{ ban.adminName || 'System' }}</span>
-                                    <span class="text-xs text-slate-500 dark:text-gray-600 block" v-if="ban.createTime">at {{ new Date(ban.createTime).toLocaleString() }}</span>
-                                </div>
-                                <div class="col-span-1 md:col-span-3 space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁原因</span>
-                                    <div class="text-slate-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800/50 p-2 rounded border border-gray-200 dark:border-white/5 break-words">
-                                        {{ ban.reason }}
+                            <div class="bg-white dark:bg-[#1a1d24] rounded-lg border border-gray-200 dark:border-slate-700/50 shadow-sm p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <!-- Reason: Full Width or dominant -->
+                                    <div class="md:col-span-4">
+                                        <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">封禁原因</span>
+                                        <div class="bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 rounded-md p-3 text-slate-800 dark:text-slate-200 text-sm leading-relaxed break-words">
+                                            {{ ban.reason }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁时长</span>
-                                    <span class="text-slate-700 dark:text-gray-200">{{ ban.duration }}</span>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">封禁时间</span>
-                                    <span class="text-slate-700 dark:text-gray-200 font-mono text-xs">{{ ban.createTime ? new Date(ban.createTime).toLocaleString() : '-' }}</span>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="block text-xs text-slate-500 dark:text-gray-500 uppercase tracking-wider font-medium">解封时间 / 过期</span>
-                                    <span v-if="ban.expiresAt" class="text-amber-600 dark:text-yellow-400 font-mono text-xs">{{ new Date(ban.expiresAt).toLocaleString() }}</span>
-                                    <span v-else class="text-slate-500 dark:text-gray-500 text-xs">永久 / 手动解除</span>
+
+                                    <!-- Basic Info Group -->
+                                    <div class="space-y-4">
+                                        <div>
+                                            <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">IP 地址</span>
+                                            <span class="font-mono text-sm text-slate-700 dark:text-slate-300 select-all">{{ ban.ip || 'N/A' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">来源服务器</span>
+                                            <span class="text-sm text-slate-700 dark:text-slate-300">{{ getServerName(ban.serverId) }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Admin & Duration Group -->
+                                    <div class="space-y-4">
+                                        <div>
+                                            <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">执行管理员</span>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ ban.adminName || 'System' }}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">封禁时长</span>
+                                            <span class="text-sm text-slate-700 dark:text-slate-300">{{ ban.duration }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Time Group -->
+                                    <div class="md:col-span-2 space-y-4">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">封禁时间</span>
+                                                <span class="font-mono text-sm text-slate-700 dark:text-slate-300">{{ ban.createTime ? new Date(ban.createTime).toLocaleString() : '-' }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">解封/过期时间</span>
+                                                <span v-if="ban.expiresAt" :class="new Date(ban.expiresAt) > new Date() ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-500'" class="font-mono text-sm">
+                                                    {{ new Date(ban.expiresAt).toLocaleString() }}
+                                                </span>
+                                                <span v-else class="text-xs font-bold px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 inline-block">
+                                                    永久 / 手动解除
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </td>
