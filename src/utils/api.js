@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api', // Use env var or default to relative path
+    baseURL: (window.runtimeConfig && window.runtimeConfig.apiBaseUrl) || import.meta.env.VITE_API_BASE_URL || '/api',
+    // fallback to env var or relative path if runtime config fails
     headers: {
         'Content-Type': 'application/json'
     }

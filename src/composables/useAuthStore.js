@@ -19,7 +19,7 @@ export const useAuthStore = () => {
             return { success: true, user }
         } catch (error) {
             console.error(error)
-            return { success: false, message: '用户名或密码错误' }
+            return { success: false, message: error.response?.data?.error || '登录失败' }
         }
     }
 
